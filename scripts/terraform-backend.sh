@@ -5,8 +5,8 @@ ENVIRONMENT=prod
 
 # Set the desired values for the backend configuration
 LOCATION=eastus
-RESOURCE_GROUP_NAME="rg"
-STORAGE_ACCOUNT_NAME="stac"
+RESOURCE_GROUP_NAME="rg-lsoavdstac"
+STORAGE_ACCOUNT_NAME="lsoavdstac"
 CONTAINER_NAME="states"
 KEY="$ENVIRONMENT.tfstate"
 
@@ -40,13 +40,6 @@ provider "azurerm" {
   }
 }
 
-provider "azurerm" {
-  features {
-
-  }
-  alias           = "management"
-  subscription_id = var.management_subscription_id
-}
 EOL
 
 #Copy provider and backend file create locally to tffiles container

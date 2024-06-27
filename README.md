@@ -1,6 +1,11 @@
-# Terraform Templates
-This repository will be used as base to start a new terraform project or even used as action to be invoked by a GitHub Action from any other repo
+# Terraform AVD Template
+This repository has the objective as a cake recipe when deploying new AVD environments
 
+## Configuration
+It's important to have the following resources already created and the configurations mentioned already made
+- Available Active Directory
+   - It was used the Azure Template to deploy a new Win Server to be our Domain Controler
+- Azure Tenant
 ## Repo Folder Structure
 
 ```bash
@@ -34,6 +39,13 @@ This repository will be used as base to start a new terraform project or even us
       ├──📜outputs.tf
       └──📜variables.tf
 ```
+
+## Terraform Modules
+### Vnet
+Module used to create the new vnet and the structure that will be required to deploy the AVD
+
+### peering-hub-spoke
+This module is optional but if you're using the hub <> spoke topoly, you'll need to peer the new AVD Spoke Vnet with an existing Hub
 
 ## [Workflows](workflows)
 ### [terraform-deply-bash](.github/workflows/terraform-deply-bash.yml)

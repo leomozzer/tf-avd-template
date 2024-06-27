@@ -2,7 +2,7 @@
 
 WORKING_DIR=./terraform-live
 ENVIRONMENT=prod
-STORAGE_ACCOUNT_NAME=stac
+STORAGE_ACCOUNT_NAME=lsoavdstac
 
 # Change to the Terraform directory
 cd $WORKING_DIR
