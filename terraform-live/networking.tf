@@ -1,12 +1,10 @@
-
-
 ##########################
 # Configure Spoke Vnets  #
 ##########################
 module "avd_vnet" {
   source = "../terraform-modules/azapi/vnet"
   for_each = {
-    for index, hub in local.default_vnet_avd : index => hub
+    for index, hub in local.default_avd_definition : index => hub
   }
   location            = each.value.location
   subscription_id     = each.value.subscription_id
