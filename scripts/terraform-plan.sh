@@ -13,11 +13,11 @@ cd $WORKING_DIR
 #Run terraform formating
 terraform fmt
 
-az storage blob download \
-    --file provider.tf \
-    --name provider.tf \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --container-name $ENVIRONMENT-tf-files
+# az storage blob download \
+#     --file provider.tf \
+#     --name provider.tf \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --container-name $ENVIRONMENT-tf-files
 
 az storage blob download \
     --file backend.tf \

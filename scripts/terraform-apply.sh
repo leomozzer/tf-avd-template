@@ -7,11 +7,11 @@ STORAGE_ACCOUNT_NAME=lsoavdstac
 # Change to the Terraform directory
 cd $WORKING_DIR
 
-az storage blob download \
-    --file provider.tf \
-    --name provider.tf \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --container-name $ENVIRONMENT-tf-files
+# az storage blob download \
+#     --file provider.tf \
+#     --name provider.tf \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --container-name $ENVIRONMENT-tf-files
 
 az storage blob download \
     --file backend.tf \

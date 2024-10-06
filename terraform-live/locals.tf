@@ -40,78 +40,42 @@ locals {
 ########################
 
 locals {
-  //Used an existing local available in another repo to create the vnet
-  //It uses the principle of "hub-spoke", so in this case, our AVD vnet will be an spoke vnet
+  default_fslogix_definition = flatten([
+    for i, key in var.avd_definition : {
+      index               = i
+      location            = key["location"] != "" ? key["location"] : var.principal_location
+      sta_fslogix_name    = "fslx${var.customershort_name}${i > 9 ? "${i + 1}" : "0${i + 1}"}"
+      resource_group_name = "rg-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-fslx${var.customershort_name}${i > 9 ? "${i + 1}" : "0${i + 1}"}-${var.environment}"
+    }
+  ])
+}
+locals {
   default_avd_definition = flatten([
     for i, key in var.avd_definition : [
       for j, identifier in key["identifier"] : {
+        resource_group_identifier = "${i}${j > 9 ? "${j + 1}" : "0${j + 1}"}"
         subscription_id           = key["subscription_id"]
         name                      = "avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}"
         resource_group_name       = "rg-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}"
         location                  = key["location"] != "" ? key["location"] : var.principal_location
-        number_id                 = "${i > 9 ? "${i + 1}" : "0${i + 1}"}"
-        sta_fslogix_name          = "fslx${var.customershort_name}${substr(identifier["name"], 0, 4)}"
-        fslogix_storage_name      = "${var.customershort_name}-vdpool-${identifier["name"]}-${var.environment}"
-        index                     = i
-        spoke_name                = "spoke-${i > 9 ? "${i + 1}" : "0${i + 1}"}"
-        spoke_resource_group_name = "rg-vnet-${local.region_name_standardize["${key["location"] != "" ? key["location"] : var.principal_location}"]}-spoke-avd-${identifier["name"]}-${i > 9 ? "${i + 1}" : "0${i + 1}"}"
-        spoke_vnet_name           = "vnet-${local.region_name_standardize["${key["location"] != "" ? key["location"] : var.principal_location}"]}-spoke-avd-${identifier["name"]}-${i > 9 ? "${i + 1}" : "0${i + 1}"}"
-        address_prefix            = key["vnet"]["address_space"]
-        subnets = flatten([
-          for entry, subnet in key["vnet"]["subnets"] : {
-            name         = "snet-avd-${identifier["name"]}-${i > 9 ? "${i + 1}" : "0${i + 1}"}"
-            subnet_range = subnet["address_prefix"]
-          }
-        ])
-        number_vms = identifier["number_vms"]
+        number_id                 = "${i}${j > 9 ? "${j + 1}" : "0${j + 1}"}"
+        avd_vdpool_name           = "vdpool-avd${identifier["name"]}-${var.environment}"
+        avd_workspace_name        = "vdws-${identifier["name"]}-${var.environment}"
+        avd_app_group_type        = identifier["app_group_type"]
+        hosts_name                = "${var.customershort_name}${var.environment}${substr("${identifier["name"]}", 0, 4)}"
+        hostpool_type             = identifier["hostpool_type"]
+        load_balancer_type        = identifier["load_balancer_type"]
+        maximum_sessions_allowed  = identifier["maximum_sessions_allowed"]
+        index                     = j
+        number_vms                = identifier["number_vms"]
+        application_list          = identifier["app_group_type"] == "RailApplications" ? identifier["application_list"] : [] #lookup(identifier, "application_list", [])
+        avdprefix                 = "${var.customershort_name}${var.environment}${substr("${identifier["name"]}", 0, 4)}"
+        ou_path                   = identifier["ou_path"]
+        fslogix_fileshare_name    = identifier["fslogix_fileshare_name"]
+        add_reader_group_name     = "group-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}-reader"
+        add_admin_group_name      = "group-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}-admin"
       }
     ]
   ])
 }
 
-
-# #########################
-# #    Resource naming    #
-# #########################
-
-# locals {
-#   //FSLogix
-#   fslogix_sta_name     = "sta${var.customershort_name}fslx01"
-#   fslogix_rg_name      = "rg-${var.customershort_name}-${local.region_name_standardize[var.principal_location]}-fslogix-avd-01"
-#   fslogix_storage_name = "${var.customershort_name}-vdpool-${var.environment}"
-
-#   //Key Vault
-#   rg_general_name                       = "rg-${var.customershort_name}-${local.region_name_standardize[var.principal_location]}-avdvmcred-01"
-#   kv_general_name                       = "kv-${var.customershort_name}-${local.region_name_standardize[var.principal_location]}-avdvmcred-01"
-#   kv_general_soft_delete_retention_days = 7
-#   kv_general_purge_protection_enabled   = false
-#   kv_general_sku_name                   = "standard"
-# }
-
-#################
-#   Vnet AVD    #
-#################
-
-# locals {
-#   //Used an existing local available in another repo to create the vnet
-#   //It uses the principle of "hub-spoke", so in this case, our AVD vnet will be an spoke vnet
-#   default_vnet_avd = flatten([
-#     for value, key in var.vnet_avd_definition : [
-#       for index, spoke in lookup(key, "vnets", []) : {
-#         subscription_id           = key["subscription_id"]
-#         location                  = spoke["location"] != "" ? spoke["location"] : var.principal_location
-#         location_short            = "${local.region_name_standardize["${spoke["location"] != "" ? spoke["location"] : var.principal_location}"]}"
-#         spoke_name                = "spoke-${index > 9 ? "${index + 1}" : "0${index + 1}"}"
-#         spoke_resource_group_name = "rg-vnet-${local.region_name_standardize["${spoke["location"] != "" ? spoke["location"] : var.principal_location}"]}-spoke-${key["identifier"]}-${index > 9 ? "${index + 1}" : "0${index + 1}"}"
-#         spoke_vnet_name           = "vnet-${local.region_name_standardize["${spoke["location"] != "" ? spoke["location"] : var.principal_location}"]}-spoke-${key["identifier"]}-${index > 9 ? "${index + 1}" : "0${index + 1}"}"
-#         address_prefix            = spoke["address_space"]
-#         subnets = flatten([
-#           for entry, subnet in spoke["subnets"] : {
-#             name         = "snet-${var.vnet_avd_definition[value]["identifier"]}-${entry > 9 ? "${entry + 1}" : "0${entry + 1}"}"
-#             subnet_range = subnet["address_prefix"]
-#           }
-#         ])
-#       }
-#     ]
-#   ])
-# }
