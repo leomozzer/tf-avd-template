@@ -15,23 +15,23 @@ module "avd" {
   workspace_name                    = each.value.avd_workspace_name
   preferred_app_group_type          = each.value.avd_app_group_type
   application_list                  = each.value.application_list
-  spoke_resource_group_name         = ""
-  spoke_vnet_name                   = ""
-  avd_vnet_name                     = ""
+  spoke_resource_group_name         = var.rg_vnet_name
+  spoke_vnet_name                   = var.vnet_name
+  avd_vnet_name                     = var.snet_name
   number_vms                        = each.value.number_vms
   avdprefix                         = each.value.avdprefix
   environment                       = var.environment
-  vm_admin_username                 = ""
-  vm_admin_password                 = ""
+  vm_admin_username                 = data.azurerm_key_vault_secret.vm_admin_username.value
+  vm_admin_password                 = data.azurerm_key_vault_secret.vm_admin_password.value
   domain_type                       = var.domain_type
   domain_name                       = var.domain_name
   ou_path                           = each.value.ou_path
-  user_domainjoin                   = ""
-  password_domain_join              = "" #AJM6Z!0nv#FDqS!
+  user_domainjoin                   = data.azurerm_key_vault_secret.user_domainjoin.value
+  password_domain_join              = data.azurerm_key_vault_secret.password_domain_join.value
 
   ### Optional parameters
   vm_size            = "Standard_B4ms"
-  vm_source_image_id = ""
+  vm_source_image_id = var.vm_source_image_id
   # vm_source_image_id                  = var.vm_source_image_id
   # os_disk_storage_account_type = "Premium_LRS"
   custom_rdp_properties = var.custom_rdp_properties

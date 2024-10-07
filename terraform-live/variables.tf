@@ -18,13 +18,6 @@ variable "avd_subscription_id" {
   type = string
 }
 
-variable "data_vnet_hub" {
-  type = object({
-    name                = string
-    resource_group_name = string
-  })
-}
-
 variable "avd_definition" {
   type = list(object({
     subscription_id = string
@@ -50,12 +43,6 @@ variable "avd_definition" {
         icon_index                   = number
       })))
     })))
-    vnet = optional(object({
-      address_space = list(string)
-      subnets = optional(list(object({
-        address_prefix = string
-      })))
-    }))
   }))
   default = [{
     subscription_id = "",
@@ -68,11 +55,7 @@ variable "avd_definition" {
       "number_vms"             = 1
       maximum_sessions_allowed = 5
       ou_path                  = ""
-    }],
-    vnet = {
-      "address_space" = [],
-      "subnets"       = []
-    }
+    }]
   }]
 }
 
@@ -134,6 +117,29 @@ variable "fslogix_fileshare_name" {
 }
 
 variable "fslogix_directory" {
+  type    = string
+  default = ""
+}
+
+variable "key_vault_name" {
+  type = string
+}
+
+variable "key_vault_resource_group" {
+  type = string
+}
+
+variable "rg_vnet_name" {
+  type    = string
+  default = ""
+}
+
+variable "vnet_name" {
+  type    = string
+  default = ""
+}
+
+variable "snet_name" {
   type    = string
   default = ""
 }

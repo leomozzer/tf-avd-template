@@ -228,7 +228,7 @@ resource "azurerm_virtual_machine_extension" "avd_register_session_host" {
   virtual_machine_id   = length(azurerm_windows_virtual_machine.avd_vm_from_gallery_image) > 0 ? azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id : azurerm_windows_virtual_machine.avd_vm[count.index].id
   publisher            = "Microsoft.Powershell"
   type                 = "DSC"
-  type_handler_version = "2.83.5.0"
+  type_handler_version = "2.83"
 
   settings = <<-SETTINGS
     {
@@ -255,95 +255,3 @@ resource "azurerm_virtual_machine_extension" "avd_register_session_host" {
 
   depends_on = [azurerm_virtual_machine_extension.joindomain]
 }
-
-#Configure the path of the Azure File Share poiting to the FSLogix directory
-# resource "azurerm_virtual_machine_extension" "configure_fslogix" {
-#   count                = length(var.vm_extension_fslogix_sta_name) > 0 ? length(var.vm_extension_fslogix_fileshare_name) > 0 ? length(var.vm_extension_fslogix_directory_name) > 0 ? var.number_vms : 0 : 0 : 0
-#   name                 = "ConfigureFsLogix"
-#   virtual_machine_id   = length(azurerm_windows_virtual_machine.avd_vm_from_gallery_image) > 0 ? azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id : azurerm_windows_virtual_machine.avd_vm[count.index].id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   protected_settings = <<SETTINGS
-#   {    
-#     "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.ps_configure_fslogix_script.rendered)}')) | Out-File -filepath configfslogix.ps1\" && powershell -ExecutionPolicy Unrestricted -File configfslogix.ps1 -azureStaName ${var.vm_extension_fslogix_sta_name} -fileShareName ${var.vm_extension_fslogix_fileshare_name} -fsLogixDirectoryValue ${var.vm_extension_fslogix_directory_name} -domainName ${var.domain_name} -localAdminUser ${var.vm_admin_username}"
-#   }
-#   SETTINGS
-
-#   depends_on = [azurerm_windows_virtual_machine.avd_vm]
-# }
-
-# #Configure AVD host deployed from a Golden Image
-# resource "azurerm_virtual_machine_extension" "configure_host_golden_image" {
-#   count                = length(var.vm_source_image_id) > 0 ? var.number_vms : 0
-#   name                 = "configure-host-golden-image"
-#   virtual_machine_id   = azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   protected_settings = <<SETTINGS
-#   {    
-#     "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.ps_script.rendered)}')) | Out-File -filepath script.ps1\" && powershell -ExecutionPolicy Unrestricted -File script.ps1 -fsLogixDirectoryValue ${var.fslogix_directory} -registrationTokenValue ${azurerm_virtual_desktop_host_pool_registration_info.avd.token}"
-#   }
-#   SETTINGS
-
-#   depends_on = [azurerm_windows_virtual_machine.avd_vm_from_gallery_image]
-# }
-
-#Configure Time Zone on VM if needed
-#Default Time zone is UTC
-# resource "azurerm_virtual_machine_extension" "configure_timezone" {
-#   count                = length(var.vm_extension_timezone_name) > 0 ? var.number_vms : 0
-#   name                 = "ConfigureTimeZone"
-#   virtual_machine_id   = azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   protected_settings = <<SETTINGS
-#   {    
-#     "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.ps_configure_timzone_script.rendered)}')) | Out-File -filepath timezone.ps1\" && powershell -ExecutionPolicy Unrestricted -File timezone.ps1 -timeZoneName ${var.vm_extension_timezone_name}"
-#   }
-#   SETTINGS
-
-#   depends_on = [azurerm_windows_virtual_machine.avd_vm_from_gallery_image]
-# }
-
-#Configure the path of the Azure File Share poiting to the FSLogix directory
-# resource "azurerm_virtual_machine_extension" "configure_fslogix" {
-#   count                = length(var.vm_extension_fslogix_sta_name) > 0 ? length(var.vm_extension_fslogix_fileshare_name) > 0 ? length(var.vm_extension_fslogix_directory_name) > 0 ? var.number_vms : 0 : 0 : 0
-#   name                 = "ConfigureFsLogix"
-#   virtual_machine_id   = azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   protected_settings = <<SETTINGS
-#   {    
-#     "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.ps_configure_fslogix_script.rendered)}')) | Out-File -filepath configfslogix.ps1\" && powershell -ExecutionPolicy Unrestricted -File configfslogix.ps1 -azureStaName ${var.vm_extension_fslogix_sta_name} -fileShareName ${var.vm_extension_fslogix_fileshare_name} -fsLogixDirectoryValue ${var.vm_extension_fslogix_directory_name}"
-#   }
-#   SETTINGS
-
-#   depends_on = [azurerm_windows_virtual_machine.avd_vm_from_gallery_image]
-# }
-
-#When host is deployed using a image from shared gallery, the host agent isn't proper configured
-# resource "azurerm_virtual_machine_extension" "configure_host_agent" {
-#   count                = length(var.vm_source_image_id) > 0 ? var.number_vms : 0
-#   name                 = "ConfigureRdaAgent"
-#   virtual_machine_id   = azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id
-#   publisher            = "Microsoft.Compute"
-#   type                 = "CustomScriptExtension"
-#   type_handler_version = "1.9"
-
-#   protected_settings = <<SETTINGS
-#   {    
-#     "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.ps_configure_rdaagent_script.rendered)}')) | Out-File -filepath configrdaagent.ps1\" && powershell -ExecutionPolicy Unrestricted -File configrdaagent.ps1 -registrationTokenValue ${azurerm_virtual_desktop_host_pool_registration_info.avd.token}"
-#   }
-#   SETTINGS
-
-#   depends_on = [azurerm_windows_virtual_machine.avd_vm_from_gallery_image]
-# }
-
