@@ -35,6 +35,14 @@ It's important to have the following resources already created and the configura
       ├──📜terraform-deploy.yml
       ├──📜terraform-deply-bash.yml
       └──📜terraform-plan.yml
+📂azure
+  └──📂scripts
+      ├──📜PS-APPATTACH-CreateCertificate.ps1
+      ├──📜PS-AVD-ConfigureFSLogixFileShare.ps1
+      ├──📜PS-AVD-ConfigureRDAAgent.ps1
+      ├──📜PS-AVD-CreateHostPool.ps1
+      ├──📜PS-AVD-LogoffUsersFromHost.ps1
+      └──📜PS-AVD-SendMessageToUser.ps1
 📂scripts
   ├──📜terraform-apply.tf
   ├──📜terraform-backend-local.tf
@@ -42,14 +50,17 @@ It's important to have the following resources already created and the configura
   ├──📜terraform-destoy.tf
   └──📜terraform-plan.tf
 📂terraform-main
+  ├──📜datasource.tf
+  ├──📜locals.tf
   ├──📜main.tf
-  ├──📜outputs.tf
   └──📜variables.tf
 📂terraform-modules
-  └──📂module1
-      ├──📜main.tf
-      ├──📜outputs.tf
-      └──📜variables.tf
+  └──📂azurerm
+      └──📂avd
+          ├──📜datasource.tf
+          ├──📜main.tf
+          ├──📜outputs.tf
+          └──📜variables.tf
 ```
 
 ## Terraform Modules

@@ -1,5 +1,3 @@
-[x] Module of vnet creation
+[ ]Add Scaling Plan Logic
 
-[x] Peering Module
-
-[/] Creating FSLogix. By default, the 
+[ ]Add automation account to automate other deployments
