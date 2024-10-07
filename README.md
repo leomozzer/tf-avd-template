@@ -4,7 +4,7 @@ This repository has the objective as a cake recipe when deploying new AVD enviro
 - Deploys the AVD environmet in hybrid environment
 - Create Host Pool
 - Create Workspace
-- Create Application group (when is Desktop app). Remote App instill not ready
+- Create Application group (when is Desktop app). Remote App still not ready
 - Create VM and vm resources like OS disk and NIC
 - Perform Domain Join
 - Add VM into host pool
