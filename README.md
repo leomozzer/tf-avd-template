@@ -15,7 +15,7 @@ It's important to have the following resources already created and the configura
    - It was used the Azure Template to deploy a new Win Server to be our Domain Controler
 - Azure Tenant
 - Virtual Network
-- Key Vault
+- Key Vault (optional)
 - User with permission of:
   - Contributor at Subscription level
 ## Repo Folder Structure
