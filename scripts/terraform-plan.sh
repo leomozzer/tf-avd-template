@@ -57,19 +57,19 @@ az storage blob upload \
     --account-name $STORAGE_ACCOUNT_NAME \
     --overwrite
 
-# az storage blob upload \
-#     --container-name $ENVIRONMENT-tf-files \
-#     --file $VAR_FILE \
-#     --name $VAR_FILE \
-#     --account-name $STORAGE_ACCOUNT_NAME \
-#     --overwrite
+az storage blob upload \
+    --container-name $ENVIRONMENT-tf-files \
+    --file $VAR_FILE \
+    --name $VAR_FILE \
+    --account-name $STORAGE_ACCOUNT_NAME \
+    --overwrite
 
-# az storage blob upload \
-#     --container-name $ENVIRONMENT-tf-files \
-#     --file provider.tf \
-#     --name provider.tf \
-#     --account-name $STORAGE_ACCOUNT_NAME \
-#     --overwrite
+az storage blob upload \
+    --container-name $ENVIRONMENT-tf-files \
+    --file provider.tf \
+    --name provider.tf \
+    --account-name $STORAGE_ACCOUNT_NAME \
+    --overwrite
 
 
 # # Optionally, you can print the plan to the console
