@@ -42,8 +42,23 @@ jobs:
               --account-name lsoavdstac \
               --container-name prod-tf-files
 
+            az storage blob download \
+              --file backend.tf \
+              --name backend.tf \
+              --account-name lsoavdstac \
+              --container-name prod-tf-files
+
+            az storage blob download \
+              --file prod.tfvars \
+              --name prod.tfvars \
+              --account-name lsoavdstac \
+              --container-name prod-tf-files
+
       - name: "List files"
         run: ls -ltr
+
+      - name: "Terraform init command"
+        run: terraform init -reconfigure
 
   # apply:
   #   name: "Apply Job"
