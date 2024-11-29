@@ -34,6 +34,7 @@ jobs:
       - name: "Download files"
         uses: azure/CLI@v1
         with:
+          working-directory: ./terraform-live
           azcliversion: latest
           inlineScript: |
             az storage blob download \
@@ -56,9 +57,11 @@ jobs:
 
       - name: "List files"
         run: ls -ltr
+        working-directory: ./terraform-live
 
       - name: "Terraform init command"
         run: terraform init -reconfigure
+        working-directory: ./terraform-live
 
   # apply:
   #   name: "Apply Job"
