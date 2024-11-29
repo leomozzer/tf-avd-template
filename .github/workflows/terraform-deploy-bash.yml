@@ -34,15 +34,15 @@ jobs:
         run: az storage blob download \
           --file provider.tf \
           --name provider.tf \
-          --account-name $STORAGE_ACCOUNT_NAME \
-          --container-name $ENVIRONMENT-tf-files
+          --account-name lsoavdstac \
+          --container-name prod-tf-files
 
       - name: "List files"
         run: az storage blob download \
           --file provider.tf \
           --name provider.tf \
-          --account-name $STORAGE_ACCOUNT_NAME \
-          --container-name $ENVIRONMENT-tf-files
+          --account-name lsoavdstac \
+          --container-name prod-tf-files
 
   # apply:
   #   name: "Apply Job"
