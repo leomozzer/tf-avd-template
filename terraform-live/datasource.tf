@@ -1,5 +1,9 @@
 data "azurerm_client_config" "current" {}
 
+data "azurerm_management_group" "management_group" {
+  name = var.management_group_id
+}
+
 ### Optional parameters
 data "azurerm_key_vault" "vm_keyvault" {
   name                = var.key_vault_name
@@ -8,7 +12,7 @@ data "azurerm_key_vault" "vm_keyvault" {
 
 data "azurerm_key_vault_secret" "vm_admin_username" {
   key_vault_id = data.azurerm_key_vault.vm_keyvault.id
-  name         = "vm-avda-admin-username-${var.environment}"
+  name         = "vm-avd-admin-username-${var.environment}"
 }
 
 data "azurerm_key_vault_secret" "vm_admin_password" {

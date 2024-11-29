@@ -144,3 +144,15 @@ variable "snet_name" {
   default = ""
 }
 
+variable "initiative_definitions" {
+  type    = any
+  default = []
+}
+
+variable "policy_definitions" {
+  type = any
+}
+
+variable "management_group_id" {
+  type = string
+}

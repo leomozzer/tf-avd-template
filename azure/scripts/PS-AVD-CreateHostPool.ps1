@@ -1,6 +1,9 @@
 <#
-Script to configure the RDInfraAgent and FSLogix registry keys and restart the service RDAgentBootLoader
+    Example: 
+    CreateHostPool -poolName "desktop" -hostPoolType "Pooled" -loadBalancerType "BreadthFirst" `
+        -preferredAppGroupType "RailApplications" -maxSessionLimit 10 -location "eastus" -environment dev
 #>
+. "PS-General-LocationHandler.ps1"
 function CreateHostPool{
     param(
 
@@ -16,30 +19,39 @@ function CreateHostPool{
         [string] $loadBalancerType,
 
         [Parameter(Mandatory=$true)]
-        [ValidateSet("RemoteApp", "Desktop")]
+        [ValidateSet("RailApplications", "Desktop")]
         [string] $preferredAppGroupType,
 
         [Parameter(Mandatory=$true)]
         [string] $maxSessionLimit,
 
         [Parameter(Mandatory=$true)]
-        [string] $localtion,
+        [string] $location,
 
         [Parameter(Mandatory=$true)]
         [string] $environment
     )
 
-    $hostPoolName = "vdpool-$poolName-$location-$environment"
+    $locationPrefix = Get-LocationPrefix -location $location
+
+    $hostPoolName = "vdpool-$poolName-$locationPrefix-$environment"
     $resourceGroupName = "rg-$hostPoolName"
 
+    #Check if resource group exists
+    if( -not (Get-AzResourceGroup -Name $resourceGroupName -location $location -ErrorAction SilentlyContinue)){
+        Write-Output "Resource group '$resourceGroupName' does not exist in location '$location'."
+        Write-Output "Creating resource group '$resourceGroupName'"
+        New-AzResourceGroup -Name $resourceGroupName -Location $location
+    }
+    
     $parameters = @{
         Name = "vdpool-$poolName-$environment"
-        ResourceGroupName = "rg-vdpool-$poolName-$location-$environment"
+        ResourceGroupName = $resourceGroupName
         HostPoolType = $hostPoolType
         LoadBalancerType = $loadBalancerType
         PreferredAppGroupType = $preferredAppGroupType
         MaxSessionLimit = $maxSessionLimit
-        Location = $localtion
+        Location = $location
     }
 
     try {

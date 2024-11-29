@@ -74,8 +74,62 @@ locals {
         fslogix_fileshare_name    = identifier["fslogix_fileshare_name"]
         add_reader_group_name     = "group-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}-reader"
         add_admin_group_name      = "group-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}-admin"
+        aad_operator_group_name   = "group-avd-${local.region_name_standardize[key["location"] != "" ? key["location"] : var.principal_location]}-${identifier["name"]}-${var.environment}-operator"
       }
     ]
   ])
+}
+
+locals {
+  avd_operator_role_assignment_actions_definition = [
+    "Microsoft.Authorization/*/read",
+    "Microsoft.AzureStackHCI/operations/read",
+    "Microsoft.AzureStackHCI/virtualMachineInstances/read",
+    "Microsoft.AzureStackHCI/virtualMachineInstances/restart/action",
+    "Microsoft.AzureStackHCI/virtualMachineInstances/start/action",
+    "Microsoft.AzureStackHCI/virtualMachineInstances/stop/action",
+    "Microsoft.Compute/virtualMachines/deallocate/action",
+    "Microsoft.Compute/virtualMachines/instanceView/read",
+    "Microsoft.Compute/virtualMachines/powerOff/action",
+    "Microsoft.Compute/virtualMachines/read",
+    "Microsoft.Compute/virtualMachines/restart/action",
+    "Microsoft.Compute/virtualMachines/start/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesCancelOperations/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesExecuteDeallocate/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesExecuteHibernate/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesExecuteStart/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesGetOperationStatus/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesSubmitDeallocate/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesSubmitHibernate/action",
+    "Microsoft.ComputeSchedule/locations/virtualMachinesSubmitStart/action",
+    "Microsoft.ComputeSchedule/register/action",
+    "Microsoft.DesktopVirtualization/hostpools/read",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/read",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/usersessions/delete",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/usersessions/read",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/usersessions/sendMessage/action",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/write",
+    "Microsoft.DesktopVirtualization/hostpools/write",
+    "Microsoft.HybridCompute/locations/operationresults/read",
+    "Microsoft.HybridCompute/locations/operationstatus/read",
+    "Microsoft.HybridCompute/machines/read",
+    "Microsoft.HybridCompute/operations/read",
+    "Microsoft.Insights/alertRules/*",
+    "Microsoft.Insights/eventtypes/values/read",
+    "Microsoft.Resources/deployments/*",
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/usersessions/*",
+    "Microsoft.Authorization/*/read",
+    "Microsoft.Support/*",
+    "Microsoft.DesktopVirtualization/workspaces/*",
+    "Microsoft.DesktopVirtualization/applicationgroups/read",
+    "Microsoft.DesktopVirtualization/hostpools/sessionhosts/*",
+    "Microsoft.DesktopVirtualization/hostpools/*",
+    "Microsoft.DesktopVirtualization/applicationgroups/*",
+    "Microsoft.Resources/subscriptions/read",
+    "Microsoft.DesktopVirtualization/appattachpackages/read",
+    "Microsoft.DesktopVirtualization/appattachpackages/write",
+    "Microsoft.DesktopVirtualization/appattachpackages/delete",
+  ]
 }
 

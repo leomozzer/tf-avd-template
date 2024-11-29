@@ -14,13 +14,17 @@ variable "avdprefix" {
   type = string
 }
 
-# variable "admin_group_avd_name" {
-#   type = string
-# }
+variable "admin_group_avd_name" {
+  type = string
+}
 
-# variable "admin_reader_avd_name" {
-#   type = string
-# }
+variable "admin_reader_avd_name" {
+  type = string
+}
+
+variable "operator_group_avd_name" {
+  type = string
+}
 
 variable "hostpool_name" {
   type = string
@@ -193,4 +197,12 @@ variable "vm_extension_fslogix_fileshare_name" {
 variable "vm_extension_fslogix_directory_name" {
   type    = string
   default = ""
+}
+variable "data_collection_rule_id" {
+  type = string
+}
+
+variable "enable_scaling_plan" {
+  type    = bool
+  default = false
 }
