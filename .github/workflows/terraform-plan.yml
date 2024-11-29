@@ -1,4 +1,4 @@
-name: 'Terraform Plan'
+name: "Terraform Plan"
 on:
   workflow_call:
     inputs:
@@ -14,7 +14,7 @@ on:
         type: string
         description: "Azure cli version"
         required: false
-        default: 'latest'
+        default: "latest"
       WORKING_DIR:
         type: string
         description: "working directory"
@@ -52,13 +52,13 @@ on:
       AZURE_SP:
         description: "Credentials of the Azure SP"
         required: true
-      ARM_CLIENT_ID: 
+      ARM_CLIENT_ID:
         description: "SP client ID"
         required: true
       ARM_CLIENT_SECRET:
         description: "SP cliente secret"
         required: true
-      ARM_SUBSCRIPTION_ID: 
+      ARM_SUBSCRIPTION_ID:
         description: "Subscription ID"
         required: true
       ARM_TENANT_ID:

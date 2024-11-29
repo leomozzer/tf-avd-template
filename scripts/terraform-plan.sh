@@ -35,7 +35,9 @@ ls -ltr
 
 # Initialize Terraform (if not already initialized)
 echo "Terraform init"
-terraform init
+#terraform init -reconfigure
+
+#terraform init -reconfigure -backend-config=subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }} -backend-config=tenant_id=${{ secrets.ARM_TENANT_ID }} -backend-config=client_id=${{ secrets.ARM_CLIENT_ID }} -backend-config=client_secret=${{ secrets.ARM_CLIENT_SECRET }}
 
 # Run Terraform plan and save the output to a plan file
 terraform plan -var-file=$VAR_FILE -out=$PLAN_FILE
