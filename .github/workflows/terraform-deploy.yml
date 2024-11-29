@@ -1,6 +1,10 @@
-name: 'Terraform Deploy'
+name: "Terraform Deploy"
 on:
   workflow_dispatch:
+  workflow_call:
+  push:
+    branches:
+      - main
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -63,7 +67,7 @@ jobs:
       - name: Checkout base branch
         uses: actions/checkout@v3
         with:
-          ref: '${{ github.event.pull_request.base.ref }}'
+          ref: "${{ github.event.pull_request.base.ref }}"
 
       # Generate Infracost JSON file as the baseline.
       - name: Generate Infracost cost estimate baseline
@@ -94,11 +98,11 @@ jobs:
       - name: Post Infracost comment
         if: github.event_name == 'pull_request'
         run: |
-            infracost comment github --path=/tmp/infracost.json \
-                                     --repo=$GITHUB_REPOSITORY \
-                                     --github-token=${{github.token}} \
-                                     --pull-request=${{github.event.pull_request.number}} \
-                                     --behavior=update
+          infracost comment github --path=/tmp/infracost.json \
+                                   --repo=$GITHUB_REPOSITORY \
+                                   --github-token=${{github.token}} \
+                                   --pull-request=${{github.event.pull_request.number}} \
+                                   --behavior=update
 
   plan:
     name: "Plan Job"
@@ -109,31 +113,31 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: ${{ matrix.stage }}
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: jungwinter/split@v2
-      id: split
-      with:
-        msg: ${{ github.repository }}
-        separator: "/"
+      - uses: jungwinter/split@v2
+        id: split
+        with:
+          msg: ${{ github.repository }}
+          separator: "/"
 
-    - uses: "./.github/actions/azure-backend"
-      with:
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "policy-as-code-tfstate-${{ matrix.stage }}-rg"
-        RESOURCE_GROUP_LOCATION: "eastus"
-        TAGS: '"UseCase=Terraform" "Stage=${{ github.job }}" "Deployed=GitHub Actions" Repository=${{ steps.split.outputs._1 }} "RunNumber=${{ github.run_number }}"'
-        STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
+      - uses: "./.github/actions/azure-backend"
+        with:
+          AZURE_SP: ${{ secrets.AZURE_SP }}
+          RESOURCE_GROUP_NAME: "policy-as-code-tfstate-${{ matrix.stage }}-rg"
+          RESOURCE_GROUP_LOCATION: "eastus"
+          TAGS: '"UseCase=Terraform" "Stage=${{ github.job }}" "Deployed=GitHub Actions" Repository=${{ steps.split.outputs._1 }} "RunNumber=${{ github.run_number }}"'
+          STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
 
-    - uses: "./.github/actions/terraform-plan"
-      with:
-        WORKING_DIR: "."
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "policy-as-code-tfstate-${{ matrix.stage }}-rg"
-        STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
-        CONTAINER_NAME: "states"
-        STATE_FILE: "policy-as-code.tfstate"
-        STAGE: "${{ matrix.stage }}"
+      - uses: "./.github/actions/terraform-plan"
+        with:
+          WORKING_DIR: "."
+          AZURE_SP: ${{ secrets.AZURE_SP }}
+          RESOURCE_GROUP_NAME: "policy-as-code-tfstate-${{ matrix.stage }}-rg"
+          STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
+          CONTAINER_NAME: "states"
+          STATE_FILE: "policy-as-code.tfstate"
+          STAGE: "${{ matrix.stage }}"
 
   apply:
     name: "Apply Job"
@@ -144,16 +148,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ matrix.stage }}
     defaults:
-     run:
-       shell: bash
-       # We keep Terraform files in the terraform directory.
-       working-directory: ./terraform-live
+      run:
+        shell: bash
+        # We keep Terraform files in the terraform directory.
+        working-directory: ./terraform-live
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - uses: "./.github/actions/terraform-apply"
-      with:
-        WORKING_DIR: "."
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
-        STAGE: "${{ matrix.stage }}"
+      - uses: "./.github/actions/terraform-apply"
+        with:
+          WORKING_DIR: "."
+          AZURE_SP: ${{ secrets.AZURE_SP }}
+          STORAGE_ACCOUNT_NAME: "stacpolicyascode${{ matrix.stage }}"
+          STAGE: "${{ matrix.stage }}"
