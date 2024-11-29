@@ -1,4 +1,4 @@
-name: 'Terraform Plan'
+name: "Terraform Apply"
 on:
   workflow_call:
     inputs:
@@ -6,7 +6,7 @@ on:
         type: string
         description: "Azure cli version"
         required: false
-        default: 'latest'
+        default: "latest"
       WORKING_DIR:
         type: string
         description: "working directory"
@@ -70,6 +70,5 @@ jobs:
 
       - name: Terraform Apply
         shell: bash
-        run:
-          terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
+        run: terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
         working-directory: ${{ inputs.WORKING_DIR }}/terraform-live

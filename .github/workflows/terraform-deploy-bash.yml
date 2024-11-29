@@ -1,9 +1,9 @@
-name: 'Terraform Deploy'
+name: "Terraform Deploy"
 on:
   workflow_call:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
 
 jobs:
   plan:
@@ -40,8 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ matrix.stage }}
     defaults:
-     run:
-       shell: bash
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v3
 
