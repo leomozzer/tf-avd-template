@@ -34,7 +34,8 @@ az storage blob download \
 ls -ltr
 
 # Initialize Terraform (if not already initialized)
-terraform init -reconfigure
+echo "Terraform init"
+terraform init
 
 # Run Terraform plan and save the output to a plan file
 terraform plan -var-file=$VAR_FILE -out=$PLAN_FILE
