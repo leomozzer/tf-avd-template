@@ -31,31 +31,31 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         run: bash ./scripts/terraform-plan.sh
 
-  apply:
-    name: "Apply Job"
-    needs: plan
-    strategy:
-      matrix:
-        stage: [prod]
-    runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v3
+  # apply:
+  #   name: "Apply Job"
+  #   needs: plan
+  #   strategy:
+  #     matrix:
+  #       stage: [prod]
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ matrix.stage }}
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_SP }}
+  #     - name: Azure Login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_SP }}
 
-      - uses: hashicorp/setup-terraform@v2
+  #     - uses: hashicorp/setup-terraform@v2
 
-      - name: Run bash Terraform Apply
-        env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        run: bash ./scripts/terraform-apply.sh
+  #     - name: Run bash Terraform Apply
+  #       env:
+  #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  #       run: bash ./scripts/terraform-apply.sh

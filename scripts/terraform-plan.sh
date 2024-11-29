@@ -31,26 +31,28 @@ az storage blob download \
     --account-name $STORAGE_ACCOUNT_NAME \
     --container-name $ENVIRONMENT-tf-files
 
-# Initialize Terraform (if not already initialized)
-terraform init -reconfigure
+ls -ltr
 
-# Run Terraform plan and save the output to a plan file
-terraform plan -var-file=$VAR_FILE -out=$PLAN_FILE
-echo "Terraform plan completed"
+# # Initialize Terraform (if not already initialized)
+# terraform init -reconfigure
 
-az storage blob upload \
-    --container-name $ENVIRONMENT-tf-files \
-    --file $PLAN_FILE \
-    --name $PLAN_FILE \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --overwrite
+# # Run Terraform plan and save the output to a plan file
+# terraform plan -var-file=$VAR_FILE -out=$PLAN_FILE
+# echo "Terraform plan completed"
 
-az storage blob upload \
-    --container-name $ENVIRONMENT-tf-files \
-    --file $VAR_FILE \
-    --name $VAR_FILE \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --overwrite
+# az storage blob upload \
+#     --container-name $ENVIRONMENT-tf-files \
+#     --file $PLAN_FILE \
+#     --name $PLAN_FILE \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --overwrite
 
-# Optionally, you can print the plan to the console
-# terraform show -json tfplan | jq '.'
+# az storage blob upload \
+#     --container-name $ENVIRONMENT-tf-files \
+#     --file $VAR_FILE \
+#     --name $VAR_FILE \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --overwrite
+
+# # Optionally, you can print the plan to the console
+# # terraform show -json tfplan | jq '.'
