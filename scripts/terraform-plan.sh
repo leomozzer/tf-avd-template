@@ -47,6 +47,13 @@ az storage blob upload \
     --account-name $STORAGE_ACCOUNT_NAME \
     --overwrite
 
+az storage blob upload \
+    --container-name $ENVIRONMENT-tf-files \
+    --file backend.tf \
+    --name backend.tf \
+    --account-name $STORAGE_ACCOUNT_NAME \
+    --overwrite
+
 # az storage blob upload \
 #     --container-name $ENVIRONMENT-tf-files \
 #     --file $VAR_FILE \

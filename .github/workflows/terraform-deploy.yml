@@ -1,10 +1,10 @@
 name: "Terraform Deploy"
 on:
   workflow_dispatch:
-  workflow_call:
-  push:
-    branches:
-      - main
+  # workflow_call:
+  # push:
+  #   branches:
+  #     - main
 
 env:
   ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
