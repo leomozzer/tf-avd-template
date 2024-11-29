@@ -34,9 +34,9 @@ jobs:
       - name: "Download files"
         uses: azure/CLI@v1
         with:
-          working-directory: ./terraform-live
           azcliversion: latest
           inlineScript: |
+            cd ./terraform-live
             az storage blob download \
               --file provider.tf \
               --name provider.tf \
