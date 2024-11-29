@@ -34,7 +34,7 @@ jobs:
       - name: "Download files"
         uses: azure/CLI@v1
         with:
-          azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+          azcliversion: latest
           inlineScript: |
             az storage blob download \
               --file provider.tf \
