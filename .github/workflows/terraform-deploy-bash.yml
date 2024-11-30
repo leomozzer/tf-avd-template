@@ -73,7 +73,7 @@ jobs:
       - name: Terraform Plan
         id: tf-plan
         run: |
-          terraform -chdir=./terraform-live plan -var-file=prod.tfvars -out=prod.plan
+          terraform -chdir=./terraform-live plan -var-file=prod.tfvars -out=prod.plan -lock-timeout=10m
       
       - name: "Save output file"
         uses: azure/CLI@v1
