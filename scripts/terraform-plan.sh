@@ -35,7 +35,7 @@ ls -ltr
 
 # Initialize Terraform (if not already initialized)
 echo "Terraform init"
-#terraform init -reconfigure
+terraform init -reconfigure
 
 #terraform init -reconfigure -backend-config=subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }} -backend-config=tenant_id=${{ secrets.ARM_TENANT_ID }} -backend-config=client_id=${{ secrets.ARM_CLIENT_ID }} -backend-config=client_secret=${{ secrets.ARM_CLIENT_SECRET }}
 
