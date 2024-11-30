@@ -62,6 +62,7 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       #terraform init -reconfigure TF_LOG=TRACE
+      #####
       - name: Terraform Init
         run: TF_LOG=trace terraform init 
         working-directory: ./terraform-live
