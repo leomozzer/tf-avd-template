@@ -145,5 +145,5 @@ jobs:
               --container-name prod-tf-files
 
       - name: Terraform Apply
-        run: terraform apply prod.plan
+        run: terraform apply -lock-timeout=10m prod.plan
         working-directory: ./terraform-live
