@@ -74,7 +74,7 @@ jobs:
         id: tf-plan
         run: |
           export exitcode=0
-          terraform plan var-file=prod.tfvars -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+          terraform plan -chdir=./terraform-live var-file=prod.tfvars -detailed-exitcode -no-color -out prod.plan || export exitcode=$?
 
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
 
