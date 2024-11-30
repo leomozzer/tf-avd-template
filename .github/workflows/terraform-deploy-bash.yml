@@ -73,8 +73,7 @@ jobs:
       - name: Terraform Plan
         id: tf-plan
         run: |
-          terraform plan var-file=prod.tfvars -out=prod.plan
-        working-directory: ./terraform-live
+          terraform -chdir=./terraform-live plan -var-file=prod.tfvars -out=prod.plan
 
       # # - name: Azure Login
       # #   uses: azure/login@v1
