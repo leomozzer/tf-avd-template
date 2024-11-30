@@ -82,10 +82,10 @@ jobs:
           inlineScript: |
             cd ./terraform-live
             az storage blob upload \
-              --container-name $ENVIRONMENT-tf-files \
+              --container-name prod-tf-files \
               --file prod.plan \
               --name prod.plan \
-              --account-name $STORAGE_ACCOUNT_NAME \
+              --account-name lsoavdstac \
               --overwrite
 
 
