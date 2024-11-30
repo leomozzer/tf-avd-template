@@ -12,24 +12,22 @@ jobs:
       matrix:
         stage: [prod]
     runs-on: ubuntu-latest
+    env:
+      ARM_SKIP_PROVIDER_REGISTRATION: true
     concurrency: ${{ matrix.stage }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+        # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_SP }}
-
-      - uses: hashicorp/setup-terraform@v2
-
-      # - name: Run bash Terraform Plan
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      #   run: bash ./scripts/terraform-plan.sh
 
       - name: "Download files"
         uses: azure/CLI@v1
@@ -55,13 +53,51 @@ jobs:
               --account-name lsoavdstac \
               --container-name prod-tf-files
 
-      - name: "List files"
-        run: ls -ltr
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
         working-directory: ./terraform-live
 
-      - name: "Terraform init command"
-        run: terraform init -reconfigure
+      - name: Terraform Format
+        run: terraform fmt -check
         working-directory: ./terraform-live
+
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          export exitcode=0
+          terraform plan var-file=prod.tfvars -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+
+          if [ $exitcode -eq 1 ]; then
+            echo Terraform Plan Failed!
+            exit 1
+          else 
+            exit 0
+          fi
+        working-directory: ./terraform-live
+
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_SP }}
+
+      # - name: Run bash Terraform Plan
+      #   env:
+      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      #   run: bash ./scripts/terraform-plan.sh
+
+      # - name: "List files"
+      #   run: ls -ltr
+      #   working-directory: ./terraform-live
+
+      # - name: "Terraform init command"
+      #   run: terraform init -reconfigure
+      #   working-directory: ./terraform-live
 
   # apply:
   #   name: "Apply Job"
