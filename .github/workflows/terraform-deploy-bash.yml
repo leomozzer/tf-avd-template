@@ -89,31 +89,59 @@ jobs:
               --overwrite
 
 
-  # apply:
-  #   name: "Apply Job"
-  #   needs: plan
-  #   strategy:
-  #     matrix:
-  #       stage: [prod]
-  #   runs-on: ubuntu-latest
-  #   environment: ${{ matrix.stage }}
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #   steps:
-  #     - uses: actions/checkout@v3
+  apply:
+    name: "Apply Job"
+    needs: plan
+    strategy:
+      matrix:
+        stage: [prod]
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.stage }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Azure Login
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_SP }}
+        # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
-  #     - uses: hashicorp/setup-terraform@v2
+      - name: Azure Login
+        uses: azure/login@v1
 
-  #     - name: Run bash Terraform Apply
-  #       env:
-  #         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  #         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  #         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  #         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  #       run: bash ./scripts/terraform-apply.sh
+      - name: "Download files"
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            cd ./terraform-live
+            az storage blob download \
+              --file provider.tf \
+              --name provider.tf \
+              --account-name lsoavdstac \
+              --container-name prod-tf-files
+
+            az storage blob download \
+              --file backend.tf \
+              --name backend.tf \
+              --account-name lsoavdstac \
+              --container-name prod-tf-files
+
+            az storage blob download \
+              --file prod.plan \
+              --name prod.plan \
+              --account-name lsoavdstac \
+              --container-name prod-tf-files
+
+            az storage blob download \
+              --file prod.tfvars \
+              --name prod.tfvars \
+              --account-name lsoavdstac \
+              --container-name prod-tf-files
+
+      - name: Terraform Apply
+        run: terraform apply prod.plan
+        working-directory: ./terraform-live
