@@ -36,55 +36,55 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_SP }}
 
-      - name: "Download files"
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            cd ./terraform-live
-            az storage blob download \
-              --file provider.tf \
-              --name provider.tf \
-              --account-name lsoavdstac \
-              --container-name prod-tf-files
+      # - name: "Download files"
+      #   uses: azure/CLI@v1
+      #   with:
+      #     azcliversion: latest
+      #     inlineScript: |
+      #       cd ./terraform-live
+      #       az storage blob download \
+      #         --file provider.tf \
+      #         --name provider.tf \
+      #         --account-name lsoavdstac \
+      #         --container-name prod-tf-files
 
-            az storage blob download \
-              --file backend.tf \
-              --name backend.tf \
-              --account-name lsoavdstac \
-              --container-name prod-tf-files
+      #       az storage blob download \
+      #         --file backend.tf \
+      #         --name backend.tf \
+      #         --account-name lsoavdstac \
+      #         --container-name prod-tf-files
 
-            az storage blob download \
-              --file prod.tfvars \
-              --name prod.tfvars \
-              --account-name lsoavdstac \
-              --container-name prod-tf-files
+      #       az storage blob download \
+      #         --file prod.tfvars \
+      #         --name prod.tfvars \
+      #         --account-name lsoavdstac \
+      #         --container-name prod-tf-files
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      #terraform init -reconfigure TF_LOG=TRACE
-      - name: Terraform Init
-        run: TF_LOG=trace terraform init 
-        working-directory: ./terraform-live
+      # # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      # #terraform init -reconfigure TF_LOG=TRACE
+      # - name: Terraform Init
+      #   run: TF_LOG=trace terraform init 
+      #   working-directory: ./terraform-live
 
-      - name: Terraform Format
-        run: terraform fmt -check
-        working-directory: ./terraform-live
+      # - name: Terraform Format
+      #   run: terraform fmt -check
+      #   working-directory: ./terraform-live
 
-      - name: Terraform Plan
-        id: tf-plan
-        run: |
-          export exitcode=0
-          terraform plan var-file=prod.tfvars -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+      # - name: Terraform Plan
+      #   id: tf-plan
+      #   run: |
+      #     export exitcode=0
+      #     terraform plan var-file=prod.tfvars -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+      #     echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
 
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else 
-            exit 0
-          fi
-        working-directory: ./terraform-live
+      #     if [ $exitcode -eq 1 ]; then
+      #       echo Terraform Plan Failed!
+      #       exit 1
+      #     else 
+      #       exit 0
+      #     fi
+      #   working-directory: ./terraform-live
 
       # - name: Azure Login
       #   uses: azure/login@v1
@@ -103,9 +103,9 @@ jobs:
       #   run: ls -ltr
       #   working-directory: ./terraform-live
 
-      # - name: "Terraform init command"
-      #   run: terraform init -reconfigure
-      #   working-directory: ./terraform-live
+      - name: "Terraform init command"
+        run: terraform init -reconfigure
+        working-directory: ./terraform-live
 
   # apply:
   #   name: "Apply Job"
