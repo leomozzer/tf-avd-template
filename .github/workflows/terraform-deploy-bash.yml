@@ -74,27 +74,20 @@ jobs:
         id: tf-plan
         run: |
           terraform -chdir=./terraform-live plan -var-file=prod.tfvars -out=prod.plan
+      
+      - name: "Save output file"
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            cd ./terraform-live
+            az storage blob upload \
+              --container-name $ENVIRONMENT-tf-files \
+              --file prod.plan \
+              --name prod.plan \
+              --account-name $STORAGE_ACCOUNT_NAME \
+              --overwrite
 
-      # # - name: Azure Login
-      # #   uses: azure/login@v1
-      # #   with:
-      # #     creds: ${{ secrets.AZURE_SP }}
-
-      # - name: Run bash Terraform Plan
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      #     ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-      #   run: bash ./scripts/terraform-plan.sh
-
-      # - name: "List files"
-      #   run: ls -ltr
-      #   working-directory: ./terraform-live
-
-      # - name: "Terraform init command"
-      #   run: terraform init -reconfigure
-      #   working-directory: ./terraform-live
 
   # apply:
   #   name: "Apply Job"

@@ -36,5 +36,5 @@ terraform.rc
 *.plan
 .terraform.lock.hcl
 .terraform
-#terraform-live/provider.tf
-#backend.tf
+terraform-live/provider.tf
+backend.tf
