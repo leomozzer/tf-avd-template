@@ -111,6 +111,8 @@ jobs:
 
       - name: Azure Login
         uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_SP }}
 
       - name: "Download files"
         uses: azure/CLI@v1
