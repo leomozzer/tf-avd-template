@@ -143,6 +143,10 @@ jobs:
               --name prod.tfvars \
               --account-name lsoavdstac \
               --container-name prod-tf-files
+      
+      - name: Terraform Init
+        run: terraform init -reconfigure
+        working-directory: ./terraform-live
 
       - name: Terraform Apply
         run: terraform apply -lock-timeout=10m prod.plan
