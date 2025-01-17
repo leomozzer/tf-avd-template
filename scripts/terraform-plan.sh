@@ -25,13 +25,11 @@ az storage blob download \
     --account-name $STORAGE_ACCOUNT_NAME \
     --container-name $ENVIRONMENT-tf-files
 
- az storage blob download \
-    --file $ENVIRONMENT.tfvars \
-    --name $ENVIRONMENT.tfvars \
-    --account-name $STORAGE_ACCOUNT_NAME \
-    --container-name $ENVIRONMENT-tf-files
-
-ls -ltr
+#  az storage blob download \
+#     --file $ENVIRONMENT.tfvars \
+#     --name $ENVIRONMENT.tfvars \
+#     --account-name $STORAGE_ACCOUNT_NAME \
+#     --container-name $ENVIRONMENT-tf-files
 
 # Initialize Terraform (if not already initialized)
 echo "Terraform init"
