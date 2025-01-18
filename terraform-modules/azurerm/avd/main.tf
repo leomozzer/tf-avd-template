@@ -308,7 +308,7 @@ resource "azurerm_virtual_machine_extension" "ama" {
 ########################
 
 resource "azurerm_monitor_data_collection_rule_association" "dcr" {
-  count                   = var.number_vms
+  count                   = length(var.data_collection_rule_id) > 0 ? var.number_vms : 0
   name                    = "dcr-${var.avdprefix}-${count.index + 1}"
   target_resource_id      = length(azurerm_windows_virtual_machine.avd_vm_from_gallery_image) > 0 ? azurerm_windows_virtual_machine.avd_vm_from_gallery_image[count.index].id : azurerm_windows_virtual_machine.avd_vm[count.index].id
   data_collection_rule_id = var.data_collection_rule_id

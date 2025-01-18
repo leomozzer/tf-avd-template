@@ -128,10 +128,10 @@ module "avd" {
   operator_group_avd_name           = each.value.aad_operator_group_name
 
   ### Optional parameters
-  vm_size                 = "Standard_B4ms"
-  vm_source_image_id      = var.vm_source_image_id
-  data_collection_rule_id = module.monitoring.dcr.id
-  enable_scaling_plan     = true
+  vm_size            = "Standard_B4ms"
+  vm_source_image_id = var.vm_source_image_id
+  # data_collection_rule_id = module.monitoring.dcr.id
+  enable_scaling_plan = true
   # vm_source_image_id                  = var.vm_source_image_id
   # os_disk_storage_account_type = "Premium_LRS"
   custom_rdp_properties = var.custom_rdp_properties

@@ -199,7 +199,8 @@ variable "vm_extension_fslogix_directory_name" {
   default = ""
 }
 variable "data_collection_rule_id" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "enable_scaling_plan" {
