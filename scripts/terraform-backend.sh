@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORKING_DIR=./terraform-live
-ENVIRONMENT=prod
+ENVIRONMENT=blue
 
 # Set the desired values for the backend configuration
 LOCATION=eastus
@@ -35,10 +35,13 @@ echo "backend.tf file has been created with the specified configuration."
 
 cat <<EOL > provider.tf
 provider "azurerm" {
+  skip_provider_registration = true
+  subscription_id            = var.avd_subscription_id
   features {
 
   }
 }
+
 
 EOL
 
@@ -54,5 +57,12 @@ az storage blob upload \
     --container-name $ENVIRONMENT-tf-files \
     --file backend.tf \
     --name backend.tf \
+    --account-name $STORAGE_ACCOUNT_NAME \
+    --overwrite
+
+az storage blob upload \
+    --container-name $ENVIRONMENT-tf-files \
+    --file $ENVIRONMENT.tfvars \
+    --name $ENVIRONMENT.tfvars \
     --account-name $STORAGE_ACCOUNT_NAME \
     --overwrite
