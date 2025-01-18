@@ -31,12 +31,12 @@ resource "azuread_group" "operator_group_avd" {
   security_enabled = true
 }
 
-resource "azurerm_role_assignment" "avd_operator_role_assignment" {
-  scope                = azurerm_resource_group.rg_avd.id
-  role_definition_name = "AVD Operator"
-  principal_id         = azuread_group.operator_group_avd.object_id
-  depends_on           = [azurerm_resource_group.rg_avd]
-}
+# resource "azurerm_role_assignment" "avd_operator_role_assignment" {
+#   scope                = azurerm_resource_group.rg_avd.id
+#   role_definition_name = "AVD Operator"
+#   principal_id         = azuread_group.operator_group_avd.object_id
+#   depends_on           = [azurerm_resource_group.rg_avd]
+# }
 
 # ##################
 # # Infrastructure #
