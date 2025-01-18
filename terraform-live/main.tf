@@ -9,6 +9,8 @@ module "avd" {
   local_admin_password                = data.azurerm_key_vault_secret.vm_admin_password.value
   avd_name                            = var.hostname_prefix
 
+  number_of_hosts = var.number_of_hosts
+
   hostname_prefix      = var.hostname_prefix
   domain_type          = var.domain_type
   domain_name          = var.domain_name
