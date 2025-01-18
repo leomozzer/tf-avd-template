@@ -149,5 +149,5 @@ module "avd" {
   # vm_extension_fslogix_fileshare_name = each.value.fslogix_fileshare_name
   # vm_extension_fslogix_directory_name = var.fslogix_directory
 
-  depends_on = [module.monitoring]
+  //depends_on = [module.monitoring]
 }
