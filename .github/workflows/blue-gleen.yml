@@ -152,3 +152,4 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -lock-timeout=10m ${{ matrix.stage }}.plan
         working-directory: ./terraform-live
+        

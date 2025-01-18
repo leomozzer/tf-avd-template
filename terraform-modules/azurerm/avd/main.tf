@@ -247,7 +247,8 @@ resource "azurerm_virtual_machine_extension" "joindomain" {
     PROTECTED_SETTINGS
 
   lifecycle {
-    ignore_changes = [settings, protected_settings]
+    prevent_destroy = true
+    ignore_changes  = [settings, protected_settings]
   }
 
   depends_on = [
@@ -288,7 +289,8 @@ resource "azurerm_virtual_machine_extension" "avd_register_session_host" {
     PROTECTED_SETTINGS
 
   lifecycle {
-    ignore_changes = [settings, protected_settings]
+    prevent_destroy = true
+    ignore_changes  = [settings, protected_settings]
   }
 
   depends_on = [azurerm_virtual_machine_extension.joindomain]
