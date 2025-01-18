@@ -1,9 +1,9 @@
 name: "Blue Green Deployment"
 on:
   workflow_call:
-  push:
-    branches:
-      - main
+#   push:
+#     branches:
+#       - main
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
 ##
@@ -152,4 +152,3 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -lock-timeout=10m ${{ matrix.stage }}.plan
         working-directory: ./terraform-live
-        
