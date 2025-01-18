@@ -3,7 +3,7 @@ on:
   workflow_call:
   push:
     branches:
-      - main
+      - dev
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
 ##
