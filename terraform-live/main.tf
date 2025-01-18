@@ -7,6 +7,7 @@ module "avd" {
   subnet_name                         = var.snet_name
   local_admin_username                = data.azurerm_key_vault_secret.vm_admin_username.value
   local_admin_password                = data.azurerm_key_vault_secret.vm_admin_password.value
+  avd_name                            = var.hostname_prefix
 
   hostname_prefix      = var.hostname_prefix
   domain_type          = var.domain_type
