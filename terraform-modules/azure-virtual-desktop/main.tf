@@ -83,4 +83,6 @@ module "hosts" {
   virtual_desktop_host_pool_name               = azurerm_virtual_desktop_host_pool.avd.name
   virtual_desktop_host_pool_registration_token = azurerm_virtual_desktop_host_pool_registration_info.avd.token
 
+  source_image_version_id = var.source_image_version_id
+
 }

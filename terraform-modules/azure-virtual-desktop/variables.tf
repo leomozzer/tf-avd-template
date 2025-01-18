@@ -161,3 +161,9 @@ variable "number_of_hosts" {
   default     = 0
   description = "Specify the number of hosts that must be deployed"
 }
+
+variable "source_image_version_id" {
+  type        = string
+  default     = ""
+  description = "VM Image version id available in the Azure Compute Gallery"
+}
