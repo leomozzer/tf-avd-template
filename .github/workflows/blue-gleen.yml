@@ -90,12 +90,74 @@ jobs:
               --overwrite
 
 
-  apply:
-    name: "Apply Job"
+  blue:
+    name: "Apply Job - Blue"
     needs: plan
     strategy:
       matrix:
-        stage: [blue, green]
+        stage: [blue]
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.stage }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+        # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_SP }}
+
+      - name: "Download files"
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            cd ./terraform-live
+            az storage blob download \
+              --file provider.tf \
+              --name provider.tf \
+              --account-name lsoavdstac \
+              --container-name ${{ matrix.stage }}-tf-files
+
+            az storage blob download \
+              --file backend.tf \
+              --name backend.tf \
+              --account-name lsoavdstac \
+              --container-name ${{ matrix.stage }}-tf-files
+
+            az storage blob download \
+              --file ${{ matrix.stage }}.plan \
+              --name ${{ matrix.stage }}.plan \
+              --account-name lsoavdstac \
+              --container-name ${{ matrix.stage }}-tf-files
+
+            az storage blob download \
+              --file ${{ matrix.stage }}.tfvars \
+              --name ${{ matrix.stage }}.tfvars \
+              --account-name lsoavdstac \
+              --container-name ${{ matrix.stage }}-tf-files
+      
+      - name: Terraform Init
+        run: terraform init -reconfigure
+        working-directory: ./terraform-live
+
+      - name: Terraform Apply
+        run: terraform apply -lock-timeout=10m ${{ matrix.stage }}.plan
+        working-directory: ./terraform-live
+  green:
+    name: "Apply Job - Green"
+    needs: plan
+    strategy:
+      matrix:
+        stage: [green]
     runs-on: ubuntu-latest
     environment: ${{ matrix.stage }}
     defaults:

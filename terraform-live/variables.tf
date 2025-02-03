@@ -75,6 +75,10 @@ variable "snet_name" {
   default = ""
 }
 
+variable "ou_path" {
+  type = string
+}
+
 # variable "initiative_definitions" {
 #   type    = any
 #   default = []

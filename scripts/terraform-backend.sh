@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORKING_DIR=./terraform-live
-ENVIRONMENT=prod
+ENVIRONMENT=green
 
 # Set the desired values for the backend configuration
 LOCATION=eastus

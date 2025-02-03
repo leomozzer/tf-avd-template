@@ -16,7 +16,7 @@ module "avd" {
   hostname_prefix      = var.hostname_prefix
   domain_type          = var.domain_type
   domain_name          = var.domain_name
-  ou_path              = "OU=Servers,OU=AVDInfra,OU=AzureADConnect,DC=lsolab,DC=com"
+  ou_path              = var.ou_path
   user_domain_join     = data.azurerm_key_vault_secret.user_domainjoin.value
   password_domain_join = data.azurerm_key_vault_secret.password_domain_join.value
 }
