@@ -41,8 +41,17 @@ variable "hostpool_load_balancer_type" {
   default     = "BreadthFirst"
   description = "Host pool load balancer type. Allowed values are BreadthFirst and DepthFirst"
   validation {
-    condition     = contains(["BreadthFirst", "DepthFirst"], var.hostpool_load_balancer_type)
-    error_message = "Valid values are 'BreadthFirst' or 'DepthFirst'"
+    condition     = contains(["BreadthFirst", "DepthFirst", "Persistent"], var.hostpool_load_balancer_type)
+    error_message = "Possible values are BreadthFirst, DepthFirst and Persistent. DepthFirst load balancing distributes new user sessions to an available session host with the highest number of connections but has not reached its maximum session limit threshold. Persistent should be used if the host pool type is Personal"
+  }
+}
+
+variable "personal_desktop_assignment_type" {
+  default     = "Automatic"
+  description = "Host pool load balancer type. Allowed values are BreadthFirst and DepthFirst"
+  validation {
+    condition     = contains(["Automatic", "Direct"], var.personal_desktop_assignment_type)
+    error_message = "Automatic assignment – The service will select an available host and assign it to an user. Possible values are Automatic and Direct. Direct Assignment – Admin selects a specific host to assign to an user."
   }
 }
 

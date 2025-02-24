@@ -19,4 +19,6 @@ module "avd" {
   ou_path              = var.ou_path
   user_domain_join     = data.azurerm_key_vault_secret.user_domainjoin.value
   password_domain_join = data.azurerm_key_vault_secret.password_domain_join.value
+
+  hostpool_type = "Personal"
 }

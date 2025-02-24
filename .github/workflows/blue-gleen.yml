@@ -1,9 +1,9 @@
 name: "Blue Green Deployment"
 on:
   workflow_call:
-  push:
-    branches:
-      - dev
+  # push:
+  #   branches:
+  #     - dev
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate.
 ##

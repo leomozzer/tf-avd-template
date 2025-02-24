@@ -3,7 +3,8 @@ resource "azurerm_resource_group" "rg_avd" {
   location = var.location
 }
 
-resource "azurerm_virtual_desktop_host_pool" "avd" {
+resource "azurerm_virtual_desktop_host_pool" "avd_pooled" {
+  count               = var.hostpool_type == "Pooled" ? 1 : 0
   name                = local.hostpool_name
   location            = var.location
   resource_group_name = azurerm_resource_group.rg_avd.name
@@ -22,8 +23,26 @@ resource "azurerm_virtual_desktop_host_pool" "avd" {
 
 }
 
+resource "azurerm_virtual_desktop_host_pool" "avd_personal" {
+  count               = var.hostpool_type == "Personal" ? 1 : 0
+  name                = local.hostpool_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg_avd.name
+
+  type               = var.hostpool_type
+  load_balancer_type = var.hostpool_load_balancer_type
+
+  validate_environment = var.hostpool_validate_environment
+  start_vm_on_connect  = var.hostpool_start_vm_on_connect
+
+  preferred_app_group_type = var.preferred_app_group_type
+
+  custom_rdp_properties = var.custom_rdp_properties
+
+}
+
 resource "azurerm_virtual_desktop_workspace" "avd" {
-  depends_on          = [azurerm_virtual_desktop_host_pool.avd]
+  depends_on          = [azurerm_virtual_desktop_host_pool.avd_pooled, azurerm_virtual_desktop_host_pool.avd_personal]
   name                = local.workspace_name
   location            = var.location
   resource_group_name = azurerm_resource_group.rg_avd.name
@@ -37,7 +56,7 @@ resource "azurerm_virtual_desktop_application_group" "avd_desktop" {
   resource_group_name = azurerm_resource_group.rg_avd.name
 
   type         = "Desktop"
-  host_pool_id = azurerm_virtual_desktop_host_pool.avd.id
+  host_pool_id = var.hostpool_type == "Personal" ? azurerm_virtual_desktop_host_pool.avd_personal[0].id : azurerm_virtual_desktop_host_pool.avd_pooled[0].id
 }
 
 resource "azurerm_virtual_desktop_workspace_application_group_association" "avd_desktop" {
@@ -53,7 +72,7 @@ resource "time_rotating" "avd_registration_expiration" {
 }
 
 resource "azurerm_virtual_desktop_host_pool_registration_info" "avd" {
-  hostpool_id     = azurerm_virtual_desktop_host_pool.avd.id
+  hostpool_id     = var.hostpool_type == "Personal" ? azurerm_virtual_desktop_host_pool.avd_personal[0].id : azurerm_virtual_desktop_host_pool.avd_pooled[0].id
   expiration_date = time_rotating.avd_registration_expiration.rotation_rfc3339
 }
 
@@ -80,7 +99,7 @@ module "hosts" {
   user_domain_join     = var.user_domain_join
   password_domain_join = var.password_domain_join
 
-  virtual_desktop_host_pool_name               = azurerm_virtual_desktop_host_pool.avd.name
+  virtual_desktop_host_pool_name               = var.hostpool_type == "Personal" ? azurerm_virtual_desktop_host_pool.avd_personal[0].id : azurerm_virtual_desktop_host_pool.avd_pooled[0].id
   virtual_desktop_host_pool_registration_token = azurerm_virtual_desktop_host_pool_registration_info.avd.token
 
   source_image_version_id = var.source_image_version_id

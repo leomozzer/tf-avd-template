@@ -1,6 +1,6 @@
 #!/bin/bash
 WORKING_DIR=./terraform-live
-ENVIRONMENT=prod
+ENVIRONMENT=personal
 PLAN_FILE=$ENVIRONMENT.plan
 STORAGE_ACCOUNT_NAME=lsoavdstac
 
