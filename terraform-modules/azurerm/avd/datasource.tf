@@ -4,7 +4,16 @@ data "azurerm_subnet" "snet" {
   virtual_network_name = var.spoke_vnet_name
 }
 
-data "azuread_service_principal" "avd_sp" {
-  count        = var.enable_scaling_plan == true ? 1 : 0
-  display_name = "Windows Virtual Desktop" #Also can be the "Azure Virtual Desktop"
+# Get the service principal for Azure Vitual Desktop
+data "azuread_service_principal" "spn" {
+  client_id = "9cdead84-a844-4324-93f2-b2e6bb768d07"
+}
+
+data "azurerm_role_definition" "power_role" {
+  name = "Desktop Virtualization Power On Off Contributor"
+}
+
+# Get an existing built-in role definition
+data "azurerm_role_definition" "this" {
+  name = "Desktop Virtualization User"
 }

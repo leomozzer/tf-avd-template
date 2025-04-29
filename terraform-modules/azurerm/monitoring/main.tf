@@ -31,14 +31,14 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
   destinations {
     log_analytics {
       workspace_resource_id = azurerm_log_analytics_workspace.log.id
-      name                  = "example-destination-log"
+      name                  = "destination-log"
     }
 
   }
 
   data_flow {
     streams      = ["Microsoft-Event", "Microsoft-Perf"]
-    destinations = ["example-destination-log"]
+    destinations = ["destination-log"]
   }
 
   data_sources {
@@ -135,13 +135,13 @@ resource "azurerm_monitor_data_collection_rule" "dcr" {
         "Processor(*) % Processor Time",
         "Memory(*)\\% Committed Bytes In Use"
       ]
-      name = "example-datasource-perfcounter"
+      name = "datasource-perfcounter"
     }
 
     windows_event_log {
       streams        = ["Microsoft-Event"]
       x_path_queries = ["Application!*[System[(Level=1 or Level=2 or Level=3 or Level=4 or Level=0 or Level=5)]]", "Security!*[System[(band(Keywords,13510798882111488))]]", "System!*[System[(Level=1 or Level=2 or Level=3 or Level=4 or Level=0 or Level=5)]]"]
-      name           = "example-datasource-wineventlog"
+      name           = "datasource-wineventlog"
     }
   }
 

@@ -324,62 +324,30 @@ resource "azurerm_monitor_data_collection_rule_association" "dcr" {
 # Scaling Plan #
 ################
 
-resource "random_uuid" "uuid" {
+# Assign the Azure AD group to the application group
+resource "azurerm_role_assignment" "scaling_plan" {
+  principal_id       = data.azuread_service_principal.spn.object_id
+  scope              = azurerm_resource_group.rg_avd.id
+  role_definition_id = data.azurerm_role_definition.power_role.id
 }
 
-resource "azurerm_role_definition" "role_definition" {
-  count       = var.enable_scaling_plan == true ? 1 : 0
-  name        = "AVD-AutoScale"
-  scope       = azurerm_resource_group.rg_avd.id
-  description = "AVD AutoScale Role"
-  permissions {
-    actions     = local.avd_autoscale_actions_definition
-    not_actions = []
-  }
-  assignable_scopes = [
-    azurerm_resource_group.rg_avd.id,
-  ]
-}
-
-resource "azurerm_role_assignment" "role_assignment" {
-  count                            = var.enable_scaling_plan == true ? 1 : 0
-  name                             = random_uuid.uuid.result
-  scope                            = azurerm_resource_group.rg_avd.id
-  role_definition_id               = azurerm_role_definition.role_definition[count.index].role_definition_resource_id
-  principal_id                     = data.azuread_service_principal.avd_sp[count.index].object_id
-  skip_service_principal_aad_check = true
-}
-
-resource "azurerm_virtual_desktop_scaling_plan" "example" {
-  count               = var.enable_scaling_plan == true ? 1 : 0
-  name                = "scaling-plan-${var.hostpool_name}"
-  location            = azurerm_resource_group.rg_avd.location
-  resource_group_name = azurerm_resource_group.rg_avd.name
-  friendly_name       = "Scaling Plan of ${var.hostpool_name}"
-  time_zone           = "GMT Standard Time"
-  schedule {
-    name                                 = "Weekdays"
-    days_of_week                         = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-    ramp_up_start_time                   = "05:00"
-    ramp_up_load_balancing_algorithm     = "BreadthFirst"
-    ramp_up_minimum_hosts_percent        = 20
-    ramp_up_capacity_threshold_percent   = 10
-    peak_start_time                      = "09:00"
-    peak_load_balancing_algorithm        = "BreadthFirst"
-    ramp_down_start_time                 = "19:00"
-    ramp_down_load_balancing_algorithm   = "DepthFirst"
-    ramp_down_minimum_hosts_percent      = 10
-    ramp_down_force_logoff_users         = false
-    ramp_down_wait_time_minutes          = 45
-    ramp_down_notification_message       = "Please log off in the next 45 minutes..."
-    ramp_down_capacity_threshold_percent = 5
-    ramp_down_stop_hosts_when            = "ZeroActiveSessions"
-    off_peak_start_time                  = "22:00"
-    off_peak_load_balancing_algorithm    = "DepthFirst"
-  }
-  host_pool {
-    hostpool_id          = azurerm_virtual_desktop_host_pool.avd.id
-    scaling_plan_enabled = true
-  }
-  depends_on = [azurerm_virtual_desktop_host_pool.avd, azurerm_role_assignment.role_assignment]
-}
+# module "scaling_plan" {
+#   source                                           = "Azure/avm-res-desktopvirtualization-scalingplan/azurerm"
+#   enable_telemetry                                 = true
+#   version                                          = "0.1.2"
+#   virtual_desktop_scaling_plan_name                = local.scaling_plan_name
+#   virtual_desktop_scaling_plan_location            = azurerm_resource_group.rg_avd.location
+#   virtual_desktop_scaling_plan_resource_group_name = azurerm_resource_group.rg_avd.name
+#   virtual_desktop_scaling_plan_time_zone           = "Eastern Standard Time"
+#   virtual_desktop_scaling_plan_description         = "${var.avd_name} Scaling Plan"
+#   #  virtual_desktop_scaling_plan_tags                = local.tags
+#   virtual_desktop_scaling_plan_host_pool = toset(
+#     [
+#       {
+#         hostpool_id          = var.hostpool_type == "Personal" ? azurerm_virtual_desktop_host_pool.avd_personal[0].id : azurerm_virtual_desktop_host_pool.avd_pooled[0].id
+#         scaling_plan_enabled = true
+#       }
+#     ]
+#   )
+#   virtual_desktop_scaling_plan_schedule = var.virtual_desktop_scaling_plan_schedule
+# }

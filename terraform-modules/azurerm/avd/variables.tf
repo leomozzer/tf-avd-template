@@ -154,11 +154,11 @@ variable "vm_source_image_id" {
 
 variable "domain_type" {
   type        = string
-  description = "AD: Active Directory; AAD: Azure Active Directory"
-  default     = "AD"
+  description = "ADDS: Active Directory; AADDS: Microsoft Entra Domain Services"
+  default     = "ADDS"
   validation {
-    condition     = contains(["AD", "AAD"], var.domain_type)
-    error_message = "Valid value is one of the following: AD, AAD."
+    condition     = contains(["ADDS", "AADDS"], var.domain_type)
+    error_message = "Valid value is one of the following: ADDS, AADDS."
   }
 }
 
