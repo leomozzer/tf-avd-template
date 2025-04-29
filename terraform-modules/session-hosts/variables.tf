@@ -143,3 +143,14 @@ variable "virtual_desktop_host_pool_registration_token" {
   type        = string
   description = "Azure Virtual Desktop Host Pool registration token"
 }
+
+variable "data_collection_rule_id" {
+  type        = string
+  default     = ""
+  description = "Data collection rule ID"
+}
+
+variable "availability_set_id" {
+  type        = string
+  description = "Avaliability set ID"
+}

@@ -36,4 +36,6 @@ locals {
   hostpool_name                  = var.hostpool_name != "" ? var.hostpool_name : "vdpool-avd-${var.avd_name}-${local.region_name_standardize[var.location]}-${var.environment_name}-${var.avd_index}"
   workspace_name                 = var.workspace_name != "" ? var.workspace_name : "vdws-${var.avd_name}-${local.region_name_standardize[var.location]}-${var.environment_name}-${var.avd_index}"
   desktop_application_group_name = "dag-${var.avd_name}-${local.region_name_standardize[var.location]}-${var.environment_name}-${var.avd_index}"
+  availability_set_name          = "avail-avd-${var.avd_name}-${local.region_name_standardize[var.location]}-${var.environment_name}-${var.avd_index}"
+  scaling_plan_name              = "vdscaling-${var.avd_name}-${local.region_name_standardize[var.location]}-${var.environment_name}-${var.avd_index}"
 }

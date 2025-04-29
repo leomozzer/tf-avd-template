@@ -84,7 +84,7 @@ variable "hostpool_maximum_sessions_allowed" {
 
 variable "preferred_app_group_type" {
   default     = "Desktop"
-  description = "Host pool maximum sessions per host. Allowed values are false and true"
+  description = "Option to specify the preferred Application Group type for the Virtual Desktop Host Pool. Valid options are None, Desktop or RailApplications. Default is Desktop"
   validation {
     condition     = contains(["Desktop", "RailApplications"], var.preferred_app_group_type)
     error_message = "Valid values are 'Desktop' or 'RailApplications'"
@@ -175,4 +175,32 @@ variable "source_image_version_id" {
   type        = string
   default     = ""
   description = "VM Image version id available in the Azure Compute Gallery"
+}
+
+variable "data_collection_rule_id" {
+  type        = string
+  default     = ""
+  description = "Data collection rule ID"
+}
+
+variable "user_group_name" {
+  type    = list(string)
+  default = []
+}
+
+variable "virtual_desktop_scaling_plan_time_zone" {
+  type    = string
+  default = "Eastern Standard Time"
+}
+
+variable "virtual_desktop_scaling_plan_schedule" {
+
+}
+variable "virtual_machine_size" {
+  type = string
+}
+
+variable "log_analytics_workspace_id" {
+  type    = string
+  default = ""
 }
