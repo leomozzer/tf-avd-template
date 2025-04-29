@@ -101,8 +101,8 @@ variable "domain_type" {
   description = "AD: Active Directory; AAD: Azure Active Directory"
   default     = "AD"
   validation {
-    condition     = contains(["AD", "AAD"], var.domain_type)
-    error_message = "Valid value is one of the following: AD, AAD."
+    condition     = contains(["ADDS", "AADDS"], var.domain_type)
+    error_message = "Valid value is one of the following: ADDS, AADDS."
   }
 }
 
@@ -150,9 +150,11 @@ variable "initiative_definitions" {
 }
 
 variable "policy_definitions" {
-  type = any
+  type    = any
+  default = []
 }
 
 variable "management_group_id" {
-  type = string
+  type    = string
+  default = ""
 }

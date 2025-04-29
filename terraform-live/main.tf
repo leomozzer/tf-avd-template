@@ -1,9 +1,9 @@
 
-# module "monitoring" {
-#   source          = "../terraform-modules/azurerm/monitoring"
-#   location        = "eastus"
-#   location_prefix = "eus"
-# }
+module "monitoring" {
+  source          = "../terraform-modules/azurerm/monitoring"
+  location        = var.principal_location
+  location_prefix = local.region_name_standardize[var.principal_location]
+}
 
 # module "subscription_definition" {
 #   source  = "gettek/policy-as-code/azurerm//modules/definition"
