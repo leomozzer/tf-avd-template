@@ -2,7 +2,7 @@
 # Creating the monitoring resources first #
 ###########################################
 module "monitoring" {
-  source          = "../terraform-modules/monitoring"
+  source          = "../terraform-modules/azurerm/monitoring"
   location        = var.principal_location
   location_prefix = local.region_name_standardize[var.principal_location]
 }
