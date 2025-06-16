@@ -1,60 +1,133 @@
-name: 'Terraform Apply'
-description: "Performs the terraform apply"
+name: '3 - Terraform Deploy'
 
-inputs:
-  AZURE_CLI_VERSION:
-    description: "Azure cli version"
-    required: false
-    default: 'latest'
-  WORKING_DIR:
-    description: "working directory"
-    required: true
-  AZURE_SP:
-    description: "Credentials of the Azure SP"
-    required: true
-  STORAGE_ACCOUNT_NAME:
-    description: "Name of the storage account"
-    required: true
-  STAGE:
-    description: "Deployment stage"
-    required: true
+on:
+  workflow_dispatch:
+    inputs:
+      # Define an input for the 'stage'
+      stage:
+        description: 'Select the deployment stage'
+        required: true # Make it required so the user must select one
+        default: 'dev' # Set 'dev' as the default option
+        type: choice
+        options:       # Provide the list of available options
+          - dev
+          - test
+          - prod
+  workflow_run:
+    workflows: ["2 - Terraform Tests"] # Name of the producer workflow
+    types:
+      - completed # Trigger when the producer workflow completes
 
-runs:
-  using: "composite"
-  steps:
-    - name: Azure Login
-      uses: azure/login@v1
+env:
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+  STA_RESOURCE_GROUP_NAME: rg-tfstate
+  RESOURCE_GROUP_LOCATION: westeurope
+
+jobs:
+  get_env:
+    name: "Get current environment"
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Define outputs for this job
+    outputs:
+      # 'env_value_for_other_jobs' is the name of the job output
+      # It takes the value from the step 'read_env_file's output 'environment_value'
+      env_value_for_other_jobs: ${{ steps.read_env_file.outputs.environment_value }}
+    steps:  
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v9
       with:
-        creds: ${{ inputs.AZURE_SP }}
+        name: environment
+        workflow: build-node-app.yml
 
-    - uses: hashicorp/setup-terraform@v2
+    - name: Read file content into a variable and set as step output
+      id: read_env_file # Give this step an ID to reference its outputs
+      run: |
+        # Read the content of the file into a bash variable
+        FILE_CONTENT=$(cat environment_info.txt)
+        
+        echo "Content read into shell variable: $FILE_CONTENT"
+        
+        # Set this content as a step output
+        # This makes the content available to subsequent steps in the same job
+        echo "environment_value=$FILE_CONTENT" >> "$GITHUB_OUTPUT"
 
-    - name: Copy ${{ inputs.STAGE }} live plan from Storage
-      uses: azure/CLI@v1
+  tfsec:
+    name: "Aquasec TfSec"
+    needs: get_env
+    strategy:
+      matrix:
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
+    runs-on: ubuntu-latest
+    concurrency: ${{ matrix.stage }}
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v3
+
+      - name: TfSec on module azure-virtual-desktop
+        run: |
+          docker pull aquasec/tfsec:latest
+          docker run --rm -v "$(pwd)/infra/modules/azure-virtual-desktop:/src" aquasec/tfsec ./src
+          docker rmi "aquasec/tfsec:latest" -f | true
+
+      - name: TfSec on module azure-virtual-desktop
+        run: |
+          docker pull aquasec/tfsec:latest
+          docker run --rm -v "$(pwd)/infra/modules/monitoring:/src" aquasec/tfsec ./src
+          docker rmi "aquasec/tfsec:latest" -f | true
+
+      - name: TfSec on terraform files
+        run: |
+          docker pull aquasec/tfsec:latest
+          docker run --rm -v "$(pwd)/infra/environment/${{ needs.get_env.outputs.env_value_for_other_jobs }}:/src" aquasec/tfsec ./src
+          docker rmi "aquasec/tfsec:latest" -f | true
+
+  plan:
+    name: "Plan Job"
+    needs: [tfsec, get_env]
+    strategy:
+      matrix:
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
+    runs-on: ubuntu-latest
+    concurrency: ${{ matrix.stage }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: "./.github/actions/terraform-plan"
       with:
-        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
-        inlineScript: |
-          az storage blob download \
-          --file terraform-live.tar \
-          --name terraform-live-${{ inputs.STAGE }}-${{ github.run_number }}.tar \
-          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
-          --container-name plans
-          tar -xvf terraform-live.tar -C ./
+        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
+        AZURE_SP: ${{ secrets.AZURE_SP }}
+        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
+        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+        CONTAINER_NAME: "states"
+        STATE_FILE: "${{ matrix.stage }}.tfstate"
+        STAGE: "${{ matrix.stage }}"
 
-    - name: Copy ${{ inputs.STAGE }} modules from Storage
-      uses: azure/CLI@v1
+  apply:
+    name: "Apply Job"
+    needs: [plan, get_env]
+    strategy:
+      matrix:
+        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.stage }}
+    defaults:
+     run:
+       shell: bash
+       # We keep Terraform files in the terraform directory.
+       working-directory: ./terraform-live
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: "./.github/actions/terraform-apply"
       with:
-        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
-        inlineScript: |
-          az storage blob download \
-          --file terraform-modules.tar \
-          --name terraform-modules-${{ inputs.STAGE }}-${{ github.run_number }}.tar \
-          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
-          --container-name plans
-          tar -xvf terraform-modules.tar -C ./
-
-    - name: Terraform Apply
-      shell: bash
-      run:
-        terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
-      working-directory: ${{ inputs.WORKING_DIR }}/terraform-live
+        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
+        AZURE_SP: ${{ secrets.AZURE_SP }}
+        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+        STAGE: "${{ matrix.stage }}"
+        CREATE_OUTPUT: "true"

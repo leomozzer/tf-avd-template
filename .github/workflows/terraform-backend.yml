@@ -1,0 +1,39 @@
+name: '0 - Terraform Backend'
+# Performs the creation of the storage account where the tfstate plan files will be placed
+
+on:
+    workflow_dispatch:
+      inputs:
+        # Define an input for the 'stage'
+        stage:
+          description: 'Select the deployment stage'
+          required: true # Make it required so the user must select one
+          default: 'dev' # Set 'dev' as the default option
+          type: choice
+          options:       # Provide the list of available options
+            - dev
+            - test
+            - prod
+env:
+  STA_RESOURCE_GROUP_NAME: rg-lsoavdstac
+  RESOURCE_GROUP_LOCATION: eastus
+
+jobs:
+  backend:
+    name: "Create Azure"
+    strategy:
+      matrix:
+        stage: ["${{ inputs.stage }}"]
+    runs-on: ubuntu-latest
+    concurrency: ${{ matrix.stage }}
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: "./.github/actions/azure-backend"
+      with:
+        AZURE_SP: ${{ secrets.AZURE_SP }}
+        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
+        RESOURCE_GROUP_LOCATION: ${{ env.RESOURCE_GROUP_LOCATION }}
+        TAGS: '"UseCase=Terraform" "Stage=${{ inputs.stage }}" "RunNumber=${{ github.run_number }}"'
+        STORAGE_ACCOUNT_NAME: "lsoavdstac"
+        ENVIRONMENT: ${{ matrix.stage }}

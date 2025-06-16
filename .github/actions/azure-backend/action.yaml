@@ -20,7 +20,7 @@ inputs:
   AZURE_CLI_VERSION:
     description: "Azure cli version"
     required: false
-    default: 'latest'
+    default: "latest"
 
 runs:
   using: "composite"
@@ -45,3 +45,4 @@ runs:
           az storage account create --resource-group ${{ inputs.RESOURCE_GROUP_NAME }} --name ${{ inputs.STORAGE_ACCOUNT_NAME }} --sku Standard_LRS --kind StorageV2 --encryption-services blob --access-tier Cool --allow-blob-public-access false
           az storage container create --name states --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }}
           az storage container create --name plans --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }}
+          az storage container create --name output --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }}
