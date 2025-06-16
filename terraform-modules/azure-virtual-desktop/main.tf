@@ -225,12 +225,14 @@ resource "azurerm_role_assignment" "scaling_plan" {
 
 module "scaling_plan" {
   source                                           = "Azure/avm-res-desktopvirtualization-scalingplan/azurerm"
+  depends_on                                       = [azurerm_role_assignment.scaling_plan]
+  count                                            = length(var.virtual_desktop_scaling_plan_schedule) > 0 ? 1 : 0
   enable_telemetry                                 = true
   version                                          = "0.1.2"
   virtual_desktop_scaling_plan_name                = local.scaling_plan_name
   virtual_desktop_scaling_plan_location            = azurerm_resource_group.rg_avd.location
   virtual_desktop_scaling_plan_resource_group_name = azurerm_resource_group.rg_avd.name
-  virtual_desktop_scaling_plan_time_zone           = "Eastern Standard Time"
+  virtual_desktop_scaling_plan_time_zone           = var.virtual_desktop_scaling_plan_time_zone
   virtual_desktop_scaling_plan_description         = "${var.avd_name} Scaling Plan"
   #  virtual_desktop_scaling_plan_tags                = local.tags
   virtual_desktop_scaling_plan_host_pool = toset(
@@ -242,4 +244,15 @@ module "scaling_plan" {
     ]
   )
   virtual_desktop_scaling_plan_schedule = var.virtual_desktop_scaling_plan_schedule
+}
+
+resource "azurerm_monitor_diagnostic_setting" "scaling_plan_diagnostic_setting" {
+  count                      = length(var.virtual_desktop_scaling_plan_schedule) > 0 ? 1 : 0
+  name                       = "avd-diagnostic-setting"
+  target_resource_id         = module.scaling_plan[count.index].resource.id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  enabled_log {
+    category = "Autoscale"
+  }
 }

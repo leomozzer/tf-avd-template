@@ -194,7 +194,7 @@ variable "virtual_desktop_scaling_plan_time_zone" {
 }
 
 variable "virtual_desktop_scaling_plan_schedule" {
-
+  default = []
 }
 variable "virtual_machine_size" {
   type = string
