@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WORKING_DIR=./terraform-live
-ENVIRONMENT=prod
+ENVIRONMENT=personal
 STORAGE_ACCOUNT_NAME=lsoavdstac
 
 VAR_FILE=$ENVIRONMENT.tfvars
