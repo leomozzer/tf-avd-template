@@ -23,7 +23,7 @@ env:
   ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  STA_RESOURCE_GROUP_NAME: rg-tfstate
+  STA_RESOURCE_GROUP_NAME: rg-lsoavdstac
   RESOURCE_GROUP_LOCATION: westeurope
 
 jobs:
@@ -97,7 +97,7 @@ jobs:
         WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
         AZURE_SP: ${{ secrets.AZURE_SP }}
         RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+        STORAGE_ACCOUNT_NAME: "lsoavdstac"
         CONTAINER_NAME: "states"
         STATE_FILE: "${{ matrix.stage }}.tfstate"
         STAGE: "${{ matrix.stage }}"
@@ -122,6 +122,6 @@ jobs:
       with:
         WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
         AZURE_SP: ${{ secrets.AZURE_SP }}
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
+        STORAGE_ACCOUNT_NAME: "lsoavdstac"
         STAGE: "${{ matrix.stage }}"
         CREATE_OUTPUT: "true"
