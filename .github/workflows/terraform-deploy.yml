@@ -69,16 +69,10 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v3
 
-      - name: TfSec on module azure-virtual-desktop
+      - name: TfSec on modules
         run: |
           docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/modules/azure-virtual-desktop:/src" aquasec/tfsec ./src
-          docker rmi "aquasec/tfsec:latest" -f | true
-
-      - name: TfSec on module azure-virtual-desktop
-        run: |
-          docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/modules/monitoring:/src" aquasec/tfsec ./src
+          docker run --rm -v "$(pwd)/infra/modules/linux-web-app:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
       - name: TfSec on terraform files
