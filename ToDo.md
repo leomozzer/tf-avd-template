@@ -1,3 +1,3 @@
-[ ]Add Scaling Plan Logic
-
-[ ]Add automation account to automate other deployments
+- [x] Add Scaling Plan Logic
+- [ ] Review Github Actions Workflow
+    - [ ] Check storage account settings

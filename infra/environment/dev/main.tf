@@ -29,7 +29,7 @@ module "avd" {
   user_domain_join     = data.azurerm_key_vault_secret.user_domainjoin.value
   password_domain_join = data.azurerm_key_vault_secret.password_domain_join.value
 
-  user_group_name              = ["AVD_Desktop", "AVD_RemoteApp"]
+  user_group_name              = ["AVD_Desktop", "AVD_RemoteApp", "AVD_Entra_ID"]
   hostpool_start_vm_on_connect = true
 
   virtual_machine_size = "Standard_B4ms"
