@@ -107,4 +107,4 @@ jobs:
         AZURE_SP: ${{ secrets.AZURE_SP }}
         STORAGE_ACCOUNT_NAME: "lsoavdstac"
         STAGE: "${{ matrix.stage }}"
-        CREATE_OUTPUT: "true"
+        CREATE_OUTPUT: "false"
