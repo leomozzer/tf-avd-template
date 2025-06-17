@@ -40,16 +40,28 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v3
 
-      - name: TfSec on modules
+      - name: TfSec in azure-virtual-desktop module
         run: |
           docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/modules/linux-web-app:/src" aquasec/tfsec ./src
+          docker run --rm -v "$(pwd)/infra/modules/azure-virtual-desktop:/src" aquasec/tfsec ./src
+          docker rmi "aquasec/tfsec:latest" -f | true
+
+      - name: TfSec in monitoring module
+        run: |
+          docker pull aquasec/tfsec:latest
+          docker run --rm -v "$(pwd)/infra/modules/monitoring:/src" aquasec/tfsec ./src
+          docker rmi "aquasec/tfsec:latest" -f | true
+          
+      - name: TfSec in monitoring module
+        run: |
+          docker pull aquasec/tfsec:latest
+          docker run --rm -v "$(pwd)/infra/modules/session-hosts:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
       - name: TfSec on terraform files
         run: |
           docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/environment/${{ needs.get_env.outputs.env_value_for_other_jobs }}:/src" aquasec/tfsec ./src
+          docker run --rm -v "$(pwd)/infra/environment/${{ matrix.stage }}:/src" aquasec/tfsec ./src
           docker rmi "aquasec/tfsec:latest" -f | true
 
   plan:
