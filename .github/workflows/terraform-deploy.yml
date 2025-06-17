@@ -79,7 +79,7 @@ jobs:
       with:
         WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
         AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
+        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}"
         STORAGE_ACCOUNT_NAME: "lsoavdstac"
         CONTAINER_NAME: "states"
         STATE_FILE: "${{ matrix.stage }}.tfstate"
