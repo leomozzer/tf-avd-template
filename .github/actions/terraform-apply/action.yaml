@@ -21,7 +21,7 @@ inputs:
   CREATE_OUTPUT:
     description: "Create output file"
     required: false
-    default: "true"
+    default: false
 
 runs:
   using: "composite"
