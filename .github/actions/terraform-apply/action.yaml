@@ -1,133 +1,111 @@
-name: '3 - Terraform Deploy'
+name: "Terraform Apply"
+description: "Performs the terraform apply"
 
-on:
-  workflow_dispatch:
-    inputs:
-      # Define an input for the 'stage'
-      stage:
-        description: 'Select the deployment stage'
-        required: true # Make it required so the user must select one
-        default: 'dev' # Set 'dev' as the default option
-        type: choice
-        options:       # Provide the list of available options
-          - dev
-          - test
-          - prod
-  workflow_run:
-    workflows: ["2 - Terraform Tests"] # Name of the producer workflow
-    types:
-      - completed # Trigger when the producer workflow completes
+inputs:
+  AZURE_CLI_VERSION:
+    description: "Azure cli version"
+    required: false
+    default: "latest"
+  WORKING_DIR:
+    description: "working directory"
+    required: true
+  AZURE_SP:
+    description: "Credentials of the Azure SP"
+    required: true
+  STORAGE_ACCOUNT_NAME:
+    description: "Name of the storage account"
+    required: true
+  STAGE:
+    description: "Deployment stage"
+    required: true
+  CREATE_OUTPUT:
+    description: "Create output file"
+    required: false
+    default: "true"
 
-env:
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-  STA_RESOURCE_GROUP_NAME: rg-tfstate
-  RESOURCE_GROUP_LOCATION: westeurope
-
-jobs:
-  get_env:
-    name: "Get current environment"
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    # Define outputs for this job
-    outputs:
-      # 'env_value_for_other_jobs' is the name of the job output
-      # It takes the value from the step 'read_env_file's output 'environment_value'
-      env_value_for_other_jobs: ${{ steps.read_env_file.outputs.environment_value }}
-    steps:  
-    - name: Download artifact
-      id: download-artifact
-      uses: dawidd6/action-download-artifact@v9
+runs:
+  using: "composite"
+  steps:
+    - name: Azure Login
+      uses: azure/login@v1
       with:
-        name: environment
-        workflow: build-node-app.yml
+        creds: ${{ inputs.AZURE_SP }}
 
-    - name: Read file content into a variable and set as step output
-      id: read_env_file # Give this step an ID to reference its outputs
+    - uses: hashicorp/setup-terraform@v2
+
+    - name: Copy ${{ inputs.STAGE }} live plan from Storage
+      uses: azure/CLI@v1
+      with:
+        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+        inlineScript: |
+          az storage blob download \
+          --file terraform-live.tar \
+          --name terraform-live-${{ inputs.STAGE }}-${{ github.run_number }}.tar \
+          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
+          --container-name plans
+
+    - name: Extract files
+      uses: a7ul/tar-action@v1.1.0
+      id: extract-terraform-live
+      with:
+        command: x
+        cwd: ./
+        files: terraform-live.tar
+
+    - name: Copy ${{ inputs.STAGE }} modules from Storage
+      uses: azure/CLI@v1
+      with:
+        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+        inlineScript: |
+          az storage blob download \
+          --file terraform-modules.tar \
+          --name terraform-modules-${{ inputs.STAGE }}-${{ github.run_number }}.tar \
+          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
+          --container-name plans
+
+    - name: Extract files
+      uses: a7ul/tar-action@v1.1.0
+      id: extract-terraform-modules
+      with:
+        command: x
+        cwd: ./
+        files: terraform-modules.tar
+
+    - name: Show directory
+      shell: bash
       run: |
-        # Read the content of the file into a bash variable
-        FILE_CONTENT=$(cat environment_info.txt)
-        
-        echo "Content read into shell variable: $FILE_CONTENT"
-        
-        # Set this content as a step output
-        # This makes the content available to subsequent steps in the same job
-        echo "environment_value=$FILE_CONTENT" >> "$GITHUB_OUTPUT"
+        ls -ltr
 
-  tfsec:
-    name: "Aquasec TfSec"
-    needs: get_env
-    strategy:
-      matrix:
-        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
-    runs-on: ubuntu-latest
-    concurrency: ${{ matrix.stage }}
+    - name: Terraform Apply
+      shell: bash
+      run: terraform apply -lock-timeout=10m "${{ inputs.STAGE }}.plan"
+      working-directory: ./
 
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v3
+    - name: Save Terraform Outputs as JSON
+      # Ensure you are in the correct directory where your main.tf is located for terraform output
+      # working-directory: ./path/to/your/terraform/root # Uncomment/adjust if your Terraform code is not at the repo root
+      run: |
+        # Capture the clean JSON output into a shell variable
+        # This command only captures the standard output of 'terraform output -json'.
+        # The runner's logging will still be visible in the GitHub Actions UI logs,
+        # but it won't be written to your JSON file.
+        TERRAFORM_JSON_OUTPUT=$(terraform output -json)
 
-      - name: TfSec on module azure-virtual-desktop
-        run: |
-          docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/modules/azure-virtual-desktop:/src" aquasec/tfsec ./src
-          docker rmi "aquasec/tfsec:latest" -f | true
+        # Write the content of the variable (which now contains only the clean JSON) to the file
+        echo "$TERRAFORM_JSON_OUTPUT" > "${{ inputs.STAGE }}.json"
 
-      - name: TfSec on module azure-virtual-desktop
-        run: |
-          docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/modules/monitoring:/src" aquasec/tfsec ./src
-          docker rmi "aquasec/tfsec:latest" -f | true
+        echo "Terraform outputs saved to ${{ inputs.STAGE }}.json"
+      shell: bash
 
-      - name: TfSec on terraform files
-        run: |
-          docker pull aquasec/tfsec:latest
-          docker run --rm -v "$(pwd)/infra/environment/${{ needs.get_env.outputs.env_value_for_other_jobs }}:/src" aquasec/tfsec ./src
-          docker rmi "aquasec/tfsec:latest" -f | true
-
-  plan:
-    name: "Plan Job"
-    needs: [tfsec, get_env]
-    strategy:
-      matrix:
-        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
-    runs-on: ubuntu-latest
-    concurrency: ${{ matrix.stage }}
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: "./.github/actions/terraform-plan"
+    - name: Save output ${{ inputs.STAGE }}.json
+      uses: azure/CLI@v1
+      if: ${{ inputs.CREATE_OUTPUT }}
       with:
-        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        RESOURCE_GROUP_NAME: "${{ env.STA_RESOURCE_GROUP_NAME }}-${{ matrix.stage }}"
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        CONTAINER_NAME: "states"
-        STATE_FILE: "${{ matrix.stage }}.tfstate"
-        STAGE: "${{ matrix.stage }}"
-
-  apply:
-    name: "Apply Job"
-    needs: [plan, get_env]
-    strategy:
-      matrix:
-        stage: ["${{ needs.get_env.outputs.env_value_for_other_jobs }}"]
-    runs-on: ubuntu-latest
-    environment: ${{ matrix.stage }}
-    defaults:
-     run:
-       shell: bash
-       # We keep Terraform files in the terraform directory.
-       working-directory: ./terraform-live
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: "./.github/actions/terraform-apply"
-      with:
-        WORKING_DIR: "./infra/environment/${{ matrix.stage }}"
-        AZURE_SP: ${{ secrets.AZURE_SP }}
-        STORAGE_ACCOUNT_NAME: "tf${{ matrix.stage }}lso01"
-        STAGE: "${{ matrix.stage }}"
-        CREATE_OUTPUT: "true"
+        azcliversion: ${{ inputs.AZURE_CLI_VERSION }}
+        inlineScript: |
+          az storage blob upload \
+          --file ${{ inputs.STAGE }}.json \
+          --name ${{ inputs.STAGE }}.json \
+          --account-name ${{ inputs.STORAGE_ACCOUNT_NAME }} \
+          --container-name output \
+          --overwrite
